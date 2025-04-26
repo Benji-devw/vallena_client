@@ -100,7 +100,7 @@ export default function SortBy({ products, onProductsSort }: SortByProps) {
         </button>
       </div>
 
-      <div className={`flex flex-wrap gap-2 ${isOpen ? 'block' : 'hidden lg:flex'}`}>
+      <div className={`flex justify-end gap-2 ${isOpen ? 'block' : 'hidden lg:flex'}`}>
         <button onClick={() => handleSort('priceAsc')} className={getButtonClass('priceAsc')}>
           <ArrowUp className="h-3 w-3" />
           Prix croissant

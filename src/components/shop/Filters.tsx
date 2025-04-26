@@ -113,9 +113,8 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     router.replace('/shop', { scroll: false });
   };
 
-  console.log('colors', colors);
   return (
-    <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4">
+    <div className="sticky top-20 bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filtres</h2>
         <div className="flex items-center space-x-2">
@@ -142,7 +141,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
       <div className={`space-y-4 ${isOpen ? 'block' : 'hidden lg:block'}`}>
         {/* Catégories */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="label">
             Catégorie
           </label>
           <select
@@ -161,7 +160,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
 
         {/* Matter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="label">
             Matière
           </label>
           <select
@@ -191,7 +190,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
               {isColorExpanded ? 'Réduire' : 'Voir plus'}
             </button>
           </div>
-          {/* <select
+          <select
             value={filters.color}
             onChange={(e) => handleFilterChange('color', e.target.value)}
             className="input"
@@ -202,7 +201,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 {color.name}
               </option>
             ))}
-          </select> */}
+          </select>
           <div className={`flex flex-wrap gap-2 mt-2 ${isColorExpanded ? 'block' : 'hidden'}`}>
             {colors.map(color => (
               <button
@@ -238,7 +237,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
 
         {/* Price */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="label">
             Fourchette de prix
           </label>
           <div className="space-y-4">
@@ -252,12 +251,12 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 min="0"
                 max="200"
                 step="10"
-                value={filters.minPrice}
+                value={filters.minPrice || 0}
                 onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                className="range"
               />
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {filters.minPrice}€
+                {filters.minPrice || 0}€
               </div>
             </div>
 
@@ -271,12 +270,12 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 min="0"
                 max="300"
                 step="10"
-                value={filters.maxPrice}
+                value={filters.maxPrice || 300}
                 onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                className="range"
               />
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {filters.maxPrice}€
+                {filters.maxPrice || 300}€
               </div>
             </div>
           </div>

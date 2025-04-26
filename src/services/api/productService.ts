@@ -99,7 +99,7 @@ export const productService = {
   },
 
   async getCategories(): Promise<Category[]> {
-    console.log('🔍 getCategories');
+    // console.log('🔍 getCategories');
     try {
       const response = await axios.get(`${API_URL}/shop/categories`);
       return response.data;
@@ -110,7 +110,6 @@ export const productService = {
   },
 
   async getMatters(): Promise<Matter[]> {
-    console.log('🔍 getMatters');
     try {
       const response = await axios.get(`${API_URL}/shop/matters`);
       return response.data;
@@ -121,7 +120,7 @@ export const productService = {
   },
 
   async getColors(): Promise<Color[]> {
-    console.log('🔍 getColors');
+    // console.log('🔍 getColors');
     try {
       const response = await axios.get(`${API_URL}/shop/colors`);
       return response.data;
