@@ -10,97 +10,117 @@ interface FiltersProps {
     id: string;
     name: string;
   }[];
+  matters: {
+    id: string;
+    name: string;
+  }[];
+  colors: {
+    id: string;
+    name: string;
+  }[];
 }
 
 interface FilterState {
   category: string;
   minPrice: string;
   maxPrice: string;
+  matter: string;
+  color: string;
 }
 
-export default function Filters({ onFilterChange, categories }: FiltersProps) {
+export default function Filters({ onFilterChange, categories, matters, colors }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+  const [isColorExpanded, setIsColorExpanded] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get('category') || '',
-    minPrice: searchParams.get('minPrice') || '0',
-    maxPrice: searchParams.get('maxPrice') || '300'
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    matter: searchParams.get('matter') || '',
+    color: searchParams.get('color') || '',
   });
 
-  // Vérifier si des filtres sont actifs
-  const hasActiveFilters = filters.category !== '' || 
-    filters.minPrice !== '0' || 
-    filters.maxPrice !== '300';
+  // check if there are active filters
+  const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.matter || filters.color;
 
-  // Effet pour mettre à jour l'URL quand les filtres changent
+  // effect to update the URL when the filters change
   useEffect(() => {
     const updateURL = () => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams();
       
-      // Mettre à jour uniquement les paramètres qui ont une valeur
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
-      });
+      // update only the parameters that have a value different from the default values
+      if (filters.category !== '') {
+        params.set('category', filters.category);
+      }
+      if (filters.minPrice !== '') {
+        params.set('minPrice', filters.minPrice);
+      }
+      if (filters.maxPrice !== '') {
+        params.set('maxPrice', filters.maxPrice);
+      }
+      if (filters.matter !== '') {
+        params.set('matter', filters.matter);
+      }
+      if (filters.color !== '') {
+        params.set('color', filters.color);
+      }
 
-      // Reset la page à 1 quand les filtres changent
+      // reset the page to 1 when the filters change
       params.set('page', '1');
 
-      // Notifier le parent que le chargement commence
+      // notify the parent that the loading starts
       onFilterChange(true);
       
-      // Mettre à jour l'URL
-      router.push(`/shop?${params.toString()}`);
+      // use replace with scroll: false to avoid the history
+      router.replace(`/shop?${params.toString()}`, { scroll: false });
     };
 
     updateURL();
-  }, [filters, searchParams, router, onFilterChange]);
+  }, [filters, router, onFilterChange]);
 
-  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
-    setFilters(prev => {
-      const newFilters = { ...prev, [filterType]: value };
-      
-      // S'assurer que minPrice n'est pas supérieur à maxPrice
-      if (filterType === 'minPrice' && parseInt(value) > parseInt(prev.maxPrice)) {
-        newFilters.maxPrice = value;
-      }
-      // S'assurer que maxPrice n'est pas inférieur à minPrice
-      if (filterType === 'maxPrice' && parseInt(value) < parseInt(prev.minPrice)) {
-        newFilters.minPrice = value;
-      }
-      
-      return newFilters;
-    });
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFilterChange(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`/shop?${params.toString()}`);
   };
 
-  const handleReset = () => {
+  const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (!hasActiveFilters) return;
     
-    // Notifier le parent que le chargement commence
+    // notify the parent that the loading starts
     onFilterChange(true);
     
-    // Réinitialiser les filtres
+    // reset filters
     setFilters({
       category: '',
-      minPrice: '0',
-      maxPrice: '300'
+      minPrice: '',
+      maxPrice: '',
+      matter: '',
+      color: '',
     });
 
-    // Mettre à jour l'URL directement
-    router.push('/shop?page=1');
+    // use replace with scroll: false
+    router.replace('/shop', { scroll: false });
   };
 
+  console.log('colors', colors);
   return (
     <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filtres</h2>
         <div className="flex items-center space-x-2">
           <button
-            onClick={handleReset}
+            onClick={(e) => handleReset(e)}
             disabled={!hasActiveFilters}
             className={`text-sm transition-colors ${
               hasActiveFilters
@@ -130,7 +150,7 @@ export default function Filters({ onFilterChange, categories }: FiltersProps) {
             onChange={(e) => handleFilterChange('category', e.target.value)}
             className="input"
           >
-            <option value="">Toutes les catégories</option>
+            <option value="" title="Toutes les catégories">---</option>
             {categories.map(category => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -139,7 +159,84 @@ export default function Filters({ onFilterChange, categories }: FiltersProps) {
           </select>
         </div>
 
-        {/* Prix */}
+        {/* Matter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Matière
+          </label>
+          <select
+            value={filters.matter}
+            onChange={(e) => handleFilterChange('matter', e.target.value)}
+            className="input"
+          >
+            <option value="" title="Toutes les matières">---</option>
+            {matters.map(matter => (
+              <option key={matter.id} value={matter.id}>
+                {matter.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Color */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Couleur
+            </label>
+            <button
+              onClick={() => setIsColorExpanded(!isColorExpanded)}
+              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+            >
+              {isColorExpanded ? 'Réduire' : 'Voir plus'}
+            </button>
+          </div>
+          {/* <select
+            value={filters.color}
+            onChange={(e) => handleFilterChange('color', e.target.value)}
+            className="input"
+          >
+            <option value="" title="Toutes les couleurs">---</option>
+            {colors.map(color => (  
+              <option key={color.id} value={color.id}>
+                {color.name}
+              </option>
+            ))}
+          </select> */}
+          <div className={`flex flex-wrap gap-2 mt-2 ${isColorExpanded ? 'block' : 'hidden'}`}>
+            {colors.map(color => (
+              <button
+                key={color.id}
+                onClick={() => handleFilterChange('color', color.id)}
+                className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+                  filters.color === color.id 
+                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300' 
+                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+              >
+                <span 
+                  className={`w-3 h-3 rounded-full ${
+                    color.name === 'Bleu' ? 'bg-blue-500' :
+                    color.name === 'Rouge' ? 'bg-red-500' :
+                    color.name === 'Vert' ? 'bg-green-500' :
+                    color.name === 'Jaune' ? 'bg-yellow-500' :
+                    color.name === 'Noir' ? 'bg-black' :
+                    color.name === 'Blanc' ? 'bg-white border border-gray-300' :
+                    color.name === 'Gris' ? 'bg-gray-500' :
+                    color.name === 'Rose' ? 'bg-pink-500' :
+                    color.name === 'Orange' ? 'bg-orange-500' :
+                    color.name === 'Marron' ? 'bg-amber-800' :
+                    color.name === 'Violet' ? 'bg-purple-500' :
+                    'bg-gray-200'
+                  }`}
+                />
+                {color.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Price */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Fourchette de prix

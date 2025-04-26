@@ -1,29 +1,34 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { productService, Product, ProductFilters } from '@/services/api/productService';
 import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 
 export default function ShopPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string; }[]>([]);
+  const [allMatter, setAllMatter] = useState<{ id: string; name: string; }[]>([]);
+  const [allColors, setAllColors] = useState<{ id: string; name: string; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFilterChange, setIsFilterChange] = useState(false);
   const lastProductRef = useRef<HTMLDivElement>(null);
 
-  // Fonction pour charger les catégories
+  // function to load the categories
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const categories = await productService.getCategories();
+        const matters = await productService.getMatters();
+        const colors = await productService.getColors();
         setAllCategories(categories);
+        setAllMatter(matters);
+        setAllColors(colors);
       } catch (err) {
         console.error('Erreur lors du chargement des catégories:', err);
         setError('Erreur lors du chargement des catégories');
@@ -32,7 +37,7 @@ export default function ShopPage() {
     loadCategories();
   }, []);
 
-  // Fonction pour charger les produits
+  // function to load the products
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -41,6 +46,8 @@ export default function ShopPage() {
           category: searchParams.get('category') || undefined,
           minPrice: searchParams.get('minPrice') || undefined,
           maxPrice: searchParams.get('maxPrice') || undefined,
+          matter: searchParams.get('matter') || undefined,
+          color: searchParams.get('color') || undefined,
           page: parseInt(searchParams.get('page') || '1'),
           limit: 12
         };
@@ -70,30 +77,32 @@ export default function ShopPage() {
     loadProducts();
   }, [searchParams]);
 
-  // Gestionnaire de changement de filtres
+  // handler for filter change
   const handleFilterChange = useCallback((isLoading: boolean) => {
     setIsFilterChange(isLoading);
   }, []);
 
-  // Gestionnaire de tri des produits
+  // handler for product sort
   const handleProductsSort = useCallback((sortedProducts: Product[]) => {
     setFilteredProducts(sortedProducts);
   }, []);
 
+  // console.log("🔍 matters", allMatter);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Notre Boutique</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Shop</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filtres */}
+          {/* Filters */}
           <div className="w-full lg:w-64">
-            <Filters onFilterChange={handleFilterChange} categories={allCategories} />
+            <Filters onFilterChange={handleFilterChange} categories={allCategories} matters={allMatter} colors={allColors} />
           </div>
 
-          {/* Liste des produits */}
+          {/* List of products */}
           <div className="flex-1">
-            {/* tri et filtres */}
+            {/* sort and filters */}
             <div className="mb-4">
               <SortBy 
                 products={products}
@@ -101,7 +110,7 @@ export default function ShopPage() {
               />
             </div>
             
-            {/* Affichage du chargement initial */}
+            {/* initial loading display */}
             {loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1 ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
@@ -112,16 +121,16 @@ export default function ShopPage() {
               <div className="text-center text-gray-500">Aucun produit trouvé</div>
             ) : (
               <div className="relative">
-                {/* Overlay de chargement pour les changements de filtres */}
+                {/* loading overlay for filter changes */}
                 {isFilterChange && (
                   <div className="absolute inset-0 bg-white bg-opacity-70 dark:bg-dark-900 dark:bg-opacity-70 z-10 flex items-center justify-center transition-opacity duration-300 ease-in-out">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                   </div>
                 )}
                 
-                {/* Conteneur principal avec préservation de la hauteur */}
+                {/* main container with height preservation */}
                 <div className="min-h-[500px]">
-                  {/* Grille de produits avec transition */}
+                  {/* products grid with transition */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ease-in-out">
                     {Array.isArray(filteredProducts) && filteredProducts.map((product, index) => (
                       <div
@@ -138,7 +147,7 @@ export default function ShopPage() {
                     ))}
                   </div>
                   
-                  {/* Indicateur de chargement pour le scroll infini */}
+                  {/* loading indicator for infinite scroll */}
                   {loading && parseInt(searchParams.get('page') || '1') > 1 && (
                     <div className="col-span-full flex justify-center py-4">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>

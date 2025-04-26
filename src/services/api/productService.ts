@@ -43,9 +43,21 @@ export interface ProductFilters {
   limit?: number;
   promotion?: boolean;
   novelty?: boolean;
+  matter?: string;
+  color?: string;
 }
 
 export interface Category {
+  id: string;
+  name: string;
+}
+
+export interface Matter {
+  id: string;
+  name: string;
+}
+
+export interface Color {
   id: string;
   name: string;
 }
@@ -56,13 +68,15 @@ export const productService = {
       const params = new URLSearchParams();
       // console.log("filters", filters);
 
-      if (filters.category) params.append("category", filters.category);
-      if (filters.minPrice) params.append("minPrice", filters.minPrice);
-      if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
-      if (filters.sort) params.append("sort", filters.sort);
-      if (filters.order) params.append("order", filters.order);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.sort) params.append('sort', filters.sort);
+      if (filters.order) params.append('order', filters.order);
       if (filters.search) params.append('search', filters.search);
-      // Nous ne passons pas promotion et novelty car ils sont gérés côté client par SortBy
+      if (filters.matter) params.append('matter', filters.matter);
+      if (filters.color) params.append('color', filters.color);
+      // Dont pass promotion and novelty because they are handled by SortBy component
       if (filters.page) params.append('page', filters.page.toString());
       if (filters.limit) params.append('limit', filters.limit.toString());
 
@@ -85,11 +99,34 @@ export const productService = {
   },
 
   async getCategories(): Promise<Category[]> {
+    console.log('🔍 getCategories');
     try {
       const response = await axios.get(`${API_URL}/shop/categories`);
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la récupération des catégories:', error);
+      throw error;
+    }
+  },
+
+  async getMatters(): Promise<Matter[]> {
+    console.log('🔍 getMatters');
+    try {
+      const response = await axios.get(`${API_URL}/shop/matters`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des matières:', error);
+      throw error;
+    }
+  },
+
+  async getColors(): Promise<Color[]> {
+    console.log('🔍 getColors');
+    try {
+      const response = await axios.get(`${API_URL}/shop/colors`);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des couleurs:', error);
       throw error;
     }
   },
