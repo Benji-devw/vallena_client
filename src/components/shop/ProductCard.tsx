@@ -54,6 +54,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             <div className="flex gap-2">
               <button
                 className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                data-testid="wishlist-button"
                 onClick={e => {
                   e.preventDefault();
                   // TODO: Implémenter la wishlist
@@ -63,6 +64,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               </button>
               <button
                 className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                data-testid="cart-button"
                 onClick={e => {
                   e.preventDefault();
                   // TODO: Implémenter l'ajout au panier
@@ -73,7 +75,10 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <h3 className="text-md font-semibold leading-none text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors duration-300">
+            <h3 
+              className="text-md font-semibold leading-none text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors duration-300"
+              data-testid={`product-title-${product._id}`}
+            >
               {product.titleProduct}
             </h3>
           </div>
