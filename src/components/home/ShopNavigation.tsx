@@ -12,7 +12,8 @@ export default function ShopNavigation() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div 
             className="relative group cursor-pointer overflow-hidden rounded-xl"
-            onClick={() => router.push('/shop?filter=promotions')}
+            data-testid="home-navigation-promotions"
+            onClick={() => router.push('/shop?sort=promotions')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-90 group-hover:opacity-100 transition-opacity" />
             <div className="relative p-8 h-64 flex flex-col justify-center items-center text-white">
@@ -26,7 +27,8 @@ export default function ShopNavigation() {
 
           <div 
             className="relative group cursor-pointer overflow-hidden rounded-xl"
-            onClick={() => router.push('/shop?filter=nouveautes')}
+            data-testid="home-navigation-novelty"
+            onClick={() => router.push('/shop?sort=novelty')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-90 group-hover:opacity-100 transition-opacity" />
             <div className="relative p-8 h-64 flex flex-col justify-center items-center text-white">

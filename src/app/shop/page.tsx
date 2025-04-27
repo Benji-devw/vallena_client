@@ -7,12 +7,12 @@ import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 import ProductSkeleton from '@/components/shop/ProductSkeleton';
-import { commentsService, Comment } from '@/services/api/commentsService';
+// import { commentsService, Comment } from '@/services/api/commentsService';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
+  // const [comments, setComments] = useState<Comment[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string; }[]>([]);
   const [allMatter, setAllMatter] = useState<{ id: string; name: string; }[]>([]);
@@ -53,8 +53,6 @@ export default function ShopPage() {
 
         const filters: ProductFilters = {
           category: searchParams.get('category') || undefined,
-          minPrice: searchParams.get('minPrice') || undefined,
-          maxPrice: searchParams.get('maxPrice') || undefined,
           matter: searchParams.get('matter') || undefined,
           color: searchParams.get('color') || undefined,
           page: parseInt(searchParams.get('page') || '1'),
@@ -94,11 +92,11 @@ export default function ShopPage() {
     };
     loadProducts();
 
-    const loadComments = async () => {
-      // const comments = await commentsService.getComments();
-      setComments(comments);
-    };
-    loadComments();
+    // const loadComments = async () => {
+    //   // const comments = await commentsService.getComments();
+    //   // setComments(comments);
+    // };
+    // loadComments();
   }, [searchParams]);
 
   // handler for filter change

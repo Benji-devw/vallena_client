@@ -22,6 +22,7 @@ describe('productService.getAllProducts', () => {
 
     // Appel de la fonction
     const result = await productService.getAllProducts();
+    // console.log(result);
 
     // Vérifications
     expect(axios.get).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/shop?`);

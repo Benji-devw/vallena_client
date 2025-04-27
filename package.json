@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest --config vitest.config.mts",
-    "test:services-api": "vitest --config vitest.config.mts src/__tests__/services_api/"
+    "test:services-api": "vitest --config vitest.config.mts src/__tests__/services_api/",
+    "test:home": "vitest --config vitest.config.mts src/__tests__/home/"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
