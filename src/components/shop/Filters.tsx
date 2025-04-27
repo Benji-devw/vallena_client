@@ -114,9 +114,9 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   };
 
   return (
-    <div className="sticky top-20 bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4">
+    <div className="sticky top-20 bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4" data-testid="filters-container">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filtres</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white" data-testid="filters-title">Filtres</h2>
         <div className="flex items-center space-x-2">
           <button
             onClick={(e) => handleReset(e)}
@@ -126,32 +126,35 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 ? "text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                 : "text-gray-400 dark:text-gray-500 cursor-not-allowed"
             }`}
+            data-testid="reset-filters-button"
           >
             Réinitialiser
           </button>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700"
+            data-testid="toggle-filters-button"
           >
             <SlidersHorizontal className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      <div className={`space-y-4 ${isOpen ? 'block' : 'hidden lg:block'}`}>
+      <div className={`space-y-4 ${isOpen ? 'block' : 'hidden lg:block'}`} data-testid="filters-content">
         {/* Catégories */}
-        <div>
-          <label className="label">
-            Catégorie
+        <div data-testid="category-filter-section">
+          <label className="label" data-testid="category-filter-label">
+            Catégories
           </label>
           <select
             value={filters.category}
             onChange={(e) => handleFilterChange('category', e.target.value)}
             className="input"
+            data-testid="category-filter-select"
           >
             <option value="" title="Toutes les catégories">---</option>
             {categories.map(category => (
-              <option key={category.id} value={category.id}>
+              <option key={category.id} value={category.id} data-testid={`category-option-${category.id}`}>
                 {category.name}
               </option>
             ))}
@@ -159,18 +162,19 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         </div>
 
         {/* Matter */}
-        <div>
-          <label className="label">
+        <div data-testid="matter-filter-section">
+          <label className="label" data-testid="matter-filter-label">
             Matière
           </label>
           <select
             value={filters.matter}
             onChange={(e) => handleFilterChange('matter', e.target.value)}
             className="input"
+            data-testid="matter-filter-select"
           >
             <option value="" title="Toutes les matières">---</option>
             {matters.map(matter => (
-              <option key={matter.id} value={matter.id}>
+              <option key={matter.id} value={matter.id} data-testid={`matter-option-${matter.id}`}>
                 {matter.name}
               </option>
             ))}
@@ -178,14 +182,15 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         </div>
 
         {/* Color */}
-        <div>
+        <div data-testid="color-filter-section">
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" data-testid="color-filter-label">
               Couleur
             </label>
             <button
               onClick={() => setIsColorExpanded(!isColorExpanded)}
               className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              data-testid="toggle-color-expand-button"
             >
               {isColorExpanded ? 'Réduire' : 'Voir plus'}
             </button>
@@ -194,15 +199,16 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             value={filters.color}
             onChange={(e) => handleFilterChange('color', e.target.value)}
             className="input"
+            data-testid="color-filter-select"
           >
             <option value="" title="Toutes les couleurs">---</option>
             {colors.map(color => (  
-              <option key={color.id} value={color.id}>
+              <option key={color.id} value={color.id} data-testid={`color-option-${color.id}`}>
                 {color.name}
               </option>
             ))}
           </select>
-          <div className={`flex flex-wrap gap-2 mt-2 ${isColorExpanded ? 'block' : 'hidden'}`}>
+          <div className={`flex flex-wrap gap-2 mt-2 ${isColorExpanded ? 'block' : 'hidden'}`} data-testid="color-chips-container">
             {colors.map(color => (
               <button
                 key={color.id}
@@ -212,6 +218,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                     ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300' 
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                 }`}
+                data-testid={`color-chip-${color.id}`}
               >
                 <span 
                   className={`w-5 h-5 rounded-full ${
@@ -229,6 +236,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                     color.name === 'Beige' ? 'bg-amber-100' :
                     'bg-gray-200'
                   }`}
+                  data-testid={`color-chip-swatch-${color.id}`}
                 />
                 {color.name}
               </button>
@@ -237,13 +245,13 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         </div>
 
         {/* Price */}
-        <div>
-          <label className="label">
-            Fourchette de prix
+        <div data-testid="price-filter-section">
+          <label className="label" data-testid="price-filter-label">
+            Prix
           </label>
           <div className="space-y-4">
             {/* Slider Min */}
-            <div className="relative">
+            <div className="relative" data-testid="min-price-filter">
               <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
                 Prix minimum
               </label>
@@ -255,14 +263,15 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 value={filters.minPrice || 0}
                 onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                 className="range"
+                data-testid="min-price-slider"
               />
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1" data-testid="min-price-value">
                 {filters.minPrice || 0}€
               </div>
             </div>
 
             {/* Slider Max */}
-            <div className="relative">
+            <div className="relative" data-testid="max-price-filter">
               <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
                 Prix maximum
               </label>
@@ -274,8 +283,9 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 value={filters.maxPrice || 300}
                 onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                 className="range"
+                data-testid="max-price-slider"
               />
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1" data-testid="max-price-value">
                 {filters.maxPrice || 300}€
               </div>
             </div>

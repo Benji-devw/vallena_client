@@ -108,23 +108,23 @@ export default function ShopPage() {
     }
   }, [loading, isFilterChange, searchParams]);
 
-  console.log("🔍 comments", comments);
+  // console.log("🔍 comments", comments);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-900" data-testid="shop-page-container">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Shop</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8" data-testid="shop-title">Shop</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters */}
-          <div className="w-full lg:w-64">
+          <div className="w-full lg:w-64" data-testid="shop-filters-container">
             <Filters onFilterChange={handleFilterChange} categories={allCategories} matters={allMatter} colors={allColors} />
           </div>
 
           {/* List of products */}
-          <div className="flex-1">
+          <div className="flex-1" data-testid="shop-products-container">
             {/* sort and filters */}
-            <div className="mb-4">
+            <div className="mb-4" data-testid="shop-sort-container">
               <SortBy 
                 products={products}
                 onProductsSort={handleProductsSort}
@@ -135,16 +135,18 @@ export default function ShopPage() {
             
             {/* initial loading display */}
             {loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1 && showSkeleton ? (
-              <ProductSkeleton />
+              <div data-testid="shop-loading-skeleton">
+                <ProductSkeleton />
+              </div>
             ) : error ? (
-              <div className="text-center text-red-500">{error}</div>
+              <div className="text-center text-red-500" data-testid="shop-error-message">{error}</div>
             ) : !Array.isArray(filteredProducts) || filteredProducts.length === 0 ? (
-              <div className="text-center text-gray-500">Aucun produit trouvé</div>
+              <div className="text-center text-gray-500" data-testid="shop-empty-message">Aucun produit trouvé</div>
             ) : (
-              <div className="relative">
+              <div className="relative" data-testid="shop-products-grid">
                 {/* loading overlay for filter changes */}
                 {isFilterChange && (
-                  <div className="absolute inset-0 bg-white/90 dark:bg-dark-900/90 z-10">
+                  <div className="absolute inset-0 bg-white/90 dark:bg-dark-900/90 z-10" data-testid="shop-filter-loading-overlay">
                     <ProductSkeleton />
                   </div>
                 )}
@@ -152,7 +154,7 @@ export default function ShopPage() {
                 {/* main container with height preservation */}
                 <div className="min-h-[500px]">
                   {/* products grid with transition */}
-                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} gap-6 transition-all duration-300 ease-in-out`}>
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} gap-6 transition-all duration-300 ease-in-out`} data-testid="shop-products-layout">
                     {Array.isArray(filteredProducts) && filteredProducts.map((product, index) => (
                       <div
                         key={product._id}
@@ -162,6 +164,7 @@ export default function ShopPage() {
                           opacity: 1,
                           animationFillMode: 'forwards' 
                         }}
+                        data-testid={`product-item-${product._id}`}
                       >
                         <ProductCard product={product} viewMode={viewMode} />
                       </div>
@@ -170,7 +173,7 @@ export default function ShopPage() {
                   
                   {/* loading indicator for infinite scroll */}
                   {loading && parseInt(searchParams.get('page') || '1') > 1 && (
-                    <div className="col-span-full flex justify-center py-4">
+                    <div className="col-span-full flex justify-center py-4" data-testid="shop-infinite-scroll-loader">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
                     </div>
                   )}

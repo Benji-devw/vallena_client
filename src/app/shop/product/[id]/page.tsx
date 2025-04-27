@@ -68,6 +68,51 @@ export default function ProductPage() {
     setSelectedColor(color);
   };
 
+  // Fonction pour ajouter le produit au panier
+  const handleAddToCart = () => {
+    try {
+      // Récupérer le panier actuel (ou initialiser un tableau vide)
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      // Ajouter le produit au panier
+      const productToAdd = {
+        productId: product._id,
+        title: product.titleProduct,
+        price: product.priceProduct,
+        quantity: quantity,
+        color: selectedColor,
+        image: product.imgCollection[0],
+      };
+      
+      // Vérifier si le produit existe déjà dans le panier
+      const existingProductIndex = cart.findIndex(
+        (item: any) => item.productId === product._id && item.color === selectedColor
+      );
+      
+      if (existingProductIndex >= 0) {
+        // Mettre à jour la quantité si le produit existe déjà
+        cart[existingProductIndex].quantity += quantity;
+      } else {
+        // Ajouter le nouveau produit au panier
+        cart.push(productToAdd);
+      }
+      
+      // Sauvegarder le panier dans localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // Feedback à l'utilisateur (uniquement dans un environnement navigateur)
+      if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+        window.alert('Produit ajouté au panier !');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout au panier:', error);
+      // Uniquement dans un environnement navigateur
+      if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+        window.alert('Une erreur est survenue lors de l\'ajout au panier');
+      }
+    }
+  };
+
   // console.log("🔴 product", selectedColor);
 
   return (
@@ -205,7 +250,10 @@ export default function ProductPage() {
                 </button>
               </div>
 
-              <button className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors">
+              <button 
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
+              >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Ajouter au panier</span>
               </button>
