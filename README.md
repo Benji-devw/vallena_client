@@ -86,6 +86,71 @@ src/
 - Les mocks pour les tests sont situés dans `src/__tests__/mocks/`
 - Le projet suit les conventions de nommage et de structure de Next.js App Router
 
+## 🔄 Workflow GitHub
+
+Le projet utilise GitHub Actions pour l'intégration continue et le déploiement continu.
+
+### Configuration des workflows
+
+Les workflows sont définis dans le répertoire `.github/workflows/`:
+
+```yaml
+# .github/workflows/test.yml
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test
+```
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to production
+        uses: some-deployment-action@v1
+        with:
+          # Configuration de déploiement
+          api_token: ${{ secrets.DEPLOY_TOKEN }}
+          # Autres paramètres...
+```
+
+### Comment utiliser
+
+1. Créez les fichiers de workflow dans `.github/workflows/`
+2. Pour les déploiements, ajoutez les secrets nécessaires dans les paramètres du repository GitHub
+3. Les tests s'exécuteront automatiquement à chaque push et pull request
+4. Le déploiement se fera automatiquement lors des push sur la branche principale
+
 ## 📋 TODO Liste
 
 - [X] Mise en place de la structure du projet
@@ -95,6 +160,7 @@ src/
 - [ ] Création du système de pagination
 - [X] Développement des composants de cartes produits
 - [X] Configuration du système de tests avec Vitest
+- [X] Configuration des workflows GitHub pour tests et déploiement
 - [ ] Implémenter la fonctionnalité de panier d'achat complète
 - [ ] Ajouter l'authentification utilisateur
 - [ ] Créer la page de profil utilisateur
