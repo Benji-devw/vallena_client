@@ -214,7 +214,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 }`}
               >
                 <span 
-                  className={`w-3 h-3 rounded-full ${
+                  className={`w-5 h-5 rounded-full ${
                     color.name === 'Bleu' ? 'bg-blue-500' :
                     color.name === 'Rouge' ? 'bg-red-500' :
                     color.name === 'Vert' ? 'bg-green-500' :
@@ -226,6 +226,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                     color.name === 'Orange' ? 'bg-orange-500' :
                     color.name === 'Marron' ? 'bg-amber-800' :
                     color.name === 'Violet' ? 'bg-purple-500' :
+                    color.name === 'Beige' ? 'bg-amber-100' :
                     'bg-gray-200'
                   }`}
                 />

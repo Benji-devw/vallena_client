@@ -14,6 +14,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   // Load product data
   useEffect(() => {
@@ -22,6 +23,11 @@ export default function ProductPage() {
         setLoading(true);
         const data = await productService.getProductById(id as string);
         setProduct(data.data);
+        // Sélectionner la première couleur par défaut
+        if (data.data.color) {
+          const firstColor = data.data.color.split(',')[0].trim();
+          setSelectedColor(firstColor);
+        }
         setError(null);
       } catch (err) {
         setError('Erreur lors du chargement du produit');
@@ -58,7 +64,11 @@ export default function ProductPage() {
     }
   };
 
-  // console.log("🔴 product", product);
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+  };
+
+  // console.log("🔴 product", selectedColor);
 
   return (
     <>
@@ -141,6 +151,37 @@ export default function ProductPage() {
                   <div>
                     <dt className="font-medium text-gray-900 dark:text-white">Entretien</dt>
                     <dd className="mt-1 text-gray-500">{product.entretien}</dd>
+                  </div>
+                )}
+                {product.color && (
+                  <div>
+                    <dt className="font-medium text-gray-900 dark:text-white">Couleurs disponibles</dt>
+                    <dd className="mt-2 flex flex-wrap gap-2">
+                      {product.color.split(',').map((color: string, index: number) => (
+                        <div
+                          key={index}
+                          className={`w-8 h-8 rounded-full cursor-pointer shadow-sm dark:hover:ring-2 dark:hover:ring-primary-600 ${
+                            selectedColor === color.trim() ? 'border-4 dark:border-gray-900 ring-2 ring-primary-600' : ''
+                          } ${
+                            color.trim().toLowerCase() === 'bleu' ? 'bg-blue-500' :
+                            color.trim().toLowerCase() === 'rouge' ? 'bg-red-500' :
+                            color.trim().toLowerCase() === 'vert' ? 'bg-green-500' :
+                            color.trim().toLowerCase() === 'jaune' ? 'bg-yellow-500' :
+                            color.trim().toLowerCase() === 'noir' ? 'bg-black' :
+                            color.trim().toLowerCase() === 'blanc' ? 'bg-white border border-gray-300' :
+                            color.trim().toLowerCase() === 'gris' ? 'bg-gray-500' :
+                            color.trim().toLowerCase() === 'rose' ? 'bg-pink-500' :
+                            color.trim().toLowerCase() === 'orange' ? 'bg-orange-500' :
+                            color.trim().toLowerCase() === 'marron' ? 'bg-amber-800' :
+                            color.trim().toLowerCase() === 'violet' ? 'bg-purple-500' :
+                            color.trim().toLowerCase() === 'beige' ? 'bg-amber-100' :
+                            'bg-gray-200'
+                          }`}
+                          title={color.trim()}
+                          onClick={() => handleColorChange(color.trim())}
+                        />
+                      ))}
+                    </dd>
                   </div>
                 )}
               </dl>

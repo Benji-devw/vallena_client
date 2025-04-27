@@ -6,6 +6,7 @@ import { productService, Product, ProductFilters } from '@/services/api/productS
 import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
+import ProductSkeleton from '@/components/shop/ProductSkeleton';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
@@ -18,6 +19,7 @@ export default function ShopPage() {
   const [error, setError] = useState<string | null>(null);
   const [isFilterChange, setIsFilterChange] = useState(false);
   const lastProductRef = useRef<HTMLDivElement>(null);
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
   // function to load the categories
   useEffect(() => {
@@ -87,6 +89,17 @@ export default function ShopPage() {
     setFilteredProducts(sortedProducts);
   }, []);
 
+  // Ajout d'un effet pour gérer le délai minimum d'affichage
+  useEffect(() => {
+    if (loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1) {
+      setShowSkeleton(true);
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, isFilterChange, searchParams]);
+
   // console.log("🔍 matters", allMatter);
 
   return (
@@ -111,10 +124,8 @@ export default function ShopPage() {
             </div>
             
             {/* initial loading display */}
-            {loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1 ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-              </div>
+            {loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1 && showSkeleton ? (
+              <ProductSkeleton />
             ) : error ? (
               <div className="text-center text-red-500">{error}</div>
             ) : !Array.isArray(filteredProducts) || filteredProducts.length === 0 ? (
@@ -123,8 +134,8 @@ export default function ShopPage() {
               <div className="relative">
                 {/* loading overlay for filter changes */}
                 {isFilterChange && (
-                  <div className="absolute inset-0 bg-white bg-opacity-70 dark:bg-dark-900 dark:bg-opacity-70 z-10 flex items-center justify-center transition-opacity duration-300 ease-in-out">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+                  <div className="absolute inset-0 bg-white/90 dark:bg-dark-900/90 z-10">
+                    <ProductSkeleton />
                   </div>
                 )}
                 
