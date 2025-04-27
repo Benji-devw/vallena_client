@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { SlidersHorizontal, ArrowUp, ArrowDown, Sparkles, PercentCircle } from 'lucide-react';
+import { SlidersHorizontal, ArrowUp, ArrowDown, Sparkles, PercentCircle, Grid, List } from 'lucide-react';
 import { Product } from '@/services/api/productService';
 
 interface SortByProps {
   products: Product[];
   onProductsSort: (sortedProducts: Product[]) => void;
+  onViewModeChange?: (mode: 'grid' | 'horizontal') => void;
+  viewMode?: 'grid' | 'horizontal';
 }
 
 type SortOption = {
@@ -15,7 +17,7 @@ type SortOption = {
   active: boolean;
 };
 
-export default function SortBy({ products, onProductsSort }: SortByProps) {
+export default function SortBy({ products, onProductsSort, onViewModeChange, viewMode }: SortByProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [sortOptions, setSortOptions] = useState<Record<string, SortOption>>({
     priceAsc: { type: 'price', order: 'asc', active: false },
@@ -100,26 +102,51 @@ export default function SortBy({ products, onProductsSort }: SortByProps) {
         </button>
       </div>
 
-      <div className={`flex justify-end gap-2 ${isOpen ? 'block' : 'hidden lg:flex'}`}>
-        <button onClick={() => handleSort('priceAsc')} className={getButtonClass('priceAsc')}>
-          <ArrowUp className="h-3 w-3" />
-          Prix croissant
-        </button>
+      <div className="flex items-center justify-between">
+        <div className={`flex gap-2 ${isOpen ? 'block' : 'hidden lg:flex'}`}>
+          <button onClick={() => handleSort('priceAsc')} className={getButtonClass('priceAsc')}>
+            <ArrowUp className="h-3 w-3" />
+            Prix croissant
+          </button>
 
-        <button onClick={() => handleSort('priceDesc')} className={getButtonClass('priceDesc')}>
-          <ArrowDown className="h-3 w-3" />
-          Prix décroissant
-        </button>
+          <button onClick={() => handleSort('priceDesc')} className={getButtonClass('priceDesc')}>
+            <ArrowDown className="h-3 w-3" />
+            Prix décroissant
+          </button>
 
-        <button onClick={() => handleSort('promotion')} className={getButtonClass('promotion')}>
-          <PercentCircle className="h-3 w-3" />
-          Promotions
-        </button>
+          <button onClick={() => handleSort('promotion')} className={getButtonClass('promotion')}>
+            <PercentCircle className="h-3 w-3" />
+            Promotions
+          </button>
 
-        <button onClick={() => handleSort('novelty')} className={getButtonClass('novelty')}>
-          <Sparkles className="h-3 w-3" />
-          Nouveautés
-        </button>
+          <button onClick={() => handleSort('novelty')} className={getButtonClass('novelty')}>
+            <Sparkles className="h-3 w-3" />
+            Nouveautés
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onViewModeChange?.('grid')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
+                : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+            }`}
+          >
+            <Grid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => onViewModeChange?.('horizontal')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'horizontal'
+                ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
+                : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

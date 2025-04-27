@@ -20,6 +20,7 @@ export default function ShopPage() {
   const [isFilterChange, setIsFilterChange] = useState(false);
   const lastProductRef = useRef<HTMLDivElement>(null);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'horizontal'>('grid');
 
   // function to load the categories
   useEffect(() => {
@@ -120,6 +121,8 @@ export default function ShopPage() {
               <SortBy 
                 products={products}
                 onProductsSort={handleProductsSort}
+                onViewModeChange={setViewMode}
+                viewMode={viewMode}
               />
             </div>
             
@@ -142,18 +145,18 @@ export default function ShopPage() {
                 {/* main container with height preservation */}
                 <div className="min-h-[500px]">
                   {/* products grid with transition */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ease-in-out">
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} gap-6 transition-all duration-300 ease-in-out`}>
                     {Array.isArray(filteredProducts) && filteredProducts.map((product, index) => (
                       <div
                         key={product._id}
                         ref={index === filteredProducts.length - 1 ? lastProductRef : null}
-                        className="transition-all duration-500 ease-in-out transform hover:scale-[1.01]"
+                        className="transition-all duration-500 ease-in-out transform hover:text-primary-500-important"
                         style={{ 
                           opacity: 1,
                           animationFillMode: 'forwards' 
                         }}
                       >
-                        <ProductCard product={product} />
+                        <ProductCard product={product} viewMode={viewMode} />
                       </div>
                     ))}
                   </div>
