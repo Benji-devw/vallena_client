@@ -188,3 +188,7 @@ Les jobs de build et de déploiement sont actuellement commentés et seront acti
 - [ ] Implémenter le mode sombre complet
 - [ ] Ajouter le support multilingue (français, anglais)
 - [ ] Créer une documentation API complète
+
+## 👤 Auteur
+
+### [navart.dev](https://navart.dev)
