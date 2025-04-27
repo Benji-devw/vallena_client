@@ -75,7 +75,10 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <h3 className="text-md font-semibold leading-none text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors duration-300">
+            <h3 
+              className="text-md font-semibold leading-none text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors duration-300"
+              data-testid={`product-title-${product._id}`}
+            >
               {product.titleProduct}
             </h3>
           </div>
