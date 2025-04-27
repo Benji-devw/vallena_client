@@ -20,8 +20,9 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFilterChange, setIsFilterChange] = useState(false);
-  const lastProductRef = useRef<HTMLDivElement>(null);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const lastProductRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'horizontal'>('grid');
 
   // function to load the categories
@@ -47,6 +48,9 @@ export default function ShopPage() {
     const loadProducts = async () => {
       try {
         setLoading(true);
+        setShowSkeleton(true);
+        const startTime = Date.now();
+
         const filters: ProductFilters = {
           category: searchParams.get('category') || undefined,
           minPrice: searchParams.get('minPrice') || undefined,
@@ -68,11 +72,21 @@ export default function ShopPage() {
           setFilteredProducts(prev => [...prev, ...productsArray]);
         }
         setError(null);
+
+        // Attendre au moins 1 seconde avant de masquer le skeleton
+        const elapsedTime = Date.now() - startTime;
+        if (elapsedTime < 1000) {
+          await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
+        }
+        setShowSkeleton(false);
+        setInitialLoadComplete(true);
       } catch (err) {
         console.error('Erreur lors du chargement des produits:', err);
         setError('Erreur lors du chargement des produits');
         setProducts([]);
         setFilteredProducts([]);
+        setShowSkeleton(false);
+        setInitialLoadComplete(true);
       } finally {
         setLoading(false);
         setIsFilterChange(false);
@@ -81,7 +95,7 @@ export default function ShopPage() {
     loadProducts();
 
     const loadComments = async () => {
-      const comments = await commentsService.getComments();
+      // const comments = await commentsService.getComments();
       setComments(comments);
     };
     loadComments();
@@ -96,17 +110,6 @@ export default function ShopPage() {
   const handleProductsSort = useCallback((sortedProducts: Product[]) => {
     setFilteredProducts(sortedProducts);
   }, []);
-
-  // Ajout d'un effet pour gérer le délai minimum d'affichage
-  useEffect(() => {
-    if (loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1) {
-      setShowSkeleton(true);
-      const timer = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, isFilterChange, searchParams]);
 
   // console.log("🔍 comments", comments);
 
@@ -134,7 +137,7 @@ export default function ShopPage() {
             </div>
             
             {/* initial loading display */}
-            {loading && !isFilterChange && parseInt(searchParams.get('page') || '1') === 1 && showSkeleton ? (
+            {!initialLoadComplete ? (
               <div data-testid="shop-loading-skeleton">
                 <ProductSkeleton />
               </div>
