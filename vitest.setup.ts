@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom';
-import { beforeAll, afterEach, afterAll, vi } from 'vitest';
+import { beforeAll, afterEach, afterAll, vi, expect } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
+
+// Étend les assertions de Vitest avec @testing-library/jest-dom
+expect.extend(matchers);
 
 // Mock Next.js navigation
 vi.mock('next/navigation', () => ({

@@ -22,18 +22,21 @@ describe('ProductCard', () => {
   });
 
   it('affiche les boutons correctement', () => {
-    const { container } = render(<ProductCard product={mockSimpleProduct} />);
+    render(<ProductCard product={mockSimpleProduct} />);
     
     // Trouver les boutons
-    const buttons = container.querySelectorAll('button');
-    expect(buttons.length).toBe(2);
-    
-    // Vérifier les icônes dans les boutons
-    const wishlistButton = buttons[0];
-    const cartButton = buttons[1];
+    const wishlistButton = screen.getByTestId('wishlist-button');
+    const cartButton = screen.getByTestId('cart-button');
     
     expect(wishlistButton).toBeInTheDocument();
     expect(cartButton).toBeInTheDocument();
+    
+    // Vérifier les icônes dans les boutons
+    const wishlistIcon = wishlistButton.querySelector('svg');
+    const cartIcon = cartButton.querySelector('svg');
+    
+    expect(wishlistIcon).toBeInTheDocument();
+    expect(cartIcon).toBeInTheDocument();
     
     // Vérifier que les boutons ont des écouteurs d'événements
     expect(wishlistButton.onclick).not.toBeNull();
