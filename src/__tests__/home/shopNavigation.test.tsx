@@ -32,17 +32,17 @@ describe('ShopNavigation', () => {
   it('renders correctly', () => {
     render(<ShopNavigation />, { container });
     
-    // test le h2
+    // the title is displayed
     expect(screen.getByText('Découvrez nos collections')).toBeTruthy();
     
-    // test les boutons
+    // test the buttons
     expect(screen.getByText('Promotions')).toBeTruthy();
     expect(screen.getByText('Nouveautés')).toBeTruthy();
     expect(screen.getByText('Voir les promotions')).toBeTruthy();
     expect(screen.getByText('Voir les nouveautés')).toBeTruthy();
   });
 
-  it('navigates to promotions page when promotions button is clicked', () => {
+  it('navigates to shop page with sort=promotions when promotions button is clicked', () => {
     render(<ShopNavigation />, { container });
     
     const promotionsButton = screen.getByTestId('home-navigation-promotions');
@@ -51,7 +51,7 @@ describe('ShopNavigation', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/shop?sort=promotions');
   });
 
-  it('navigates to novelty page when novelty button is clicked', () => {
+  it('navigates to shop page with sort=novelty when novelty button is clicked', () => {
     render(<ShopNavigation />, { container });
     
     const noveltyButton = screen.getByTestId('home-navigation-novelty');
