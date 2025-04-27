@@ -22,10 +22,10 @@ interface FiltersProps {
 
 interface FilterState {
   category: string;
-  minPrice: string;
-  maxPrice: string;
   matter: string;
   color: string;
+  minPrice: string;
+  maxPrice: string;
 }
 
 export default function Filters({ onFilterChange, categories, matters, colors }: FiltersProps) {
@@ -53,17 +53,17 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
       if (filters.category !== '') {
         params.set('category', filters.category);
       }
-      if (filters.minPrice !== '') {
-        params.set('minPrice', filters.minPrice);
-      }
-      if (filters.maxPrice !== '') {
-        params.set('maxPrice', filters.maxPrice);
-      }
       if (filters.matter !== '') {
         params.set('matter', filters.matter);
       }
       if (filters.color !== '') {
         params.set('color', filters.color);
+      }
+      if (filters.minPrice !== '') {
+        params.set('minPrice', filters.minPrice);
+      }
+      if (filters.maxPrice !== '') {
+        params.set('maxPrice', filters.maxPrice);
       }
 
       // reset the page to 1 when the filters change
@@ -103,10 +103,10 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     // reset filters
     setFilters({
       category: '',
-      minPrice: '',
-      maxPrice: '',
       matter: '',
       color: '',
+      minPrice: '',
+      maxPrice: '',
     });
 
     // use replace with scroll: false

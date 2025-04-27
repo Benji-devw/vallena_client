@@ -104,25 +104,25 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
 
       <div className="flex items-center justify-between">
         <div className={`flex gap-2 ${isOpen ? 'block' : 'hidden lg:flex'}`}>
-          <button onClick={() => handleSort('priceAsc')} className={getButtonClass('priceAsc')}>
-            <ArrowUp className="h-3 w-3" />
-            Prix croissant
-          </button>
+        <button onClick={() => handleSort('priceAsc')} className={getButtonClass('priceAsc')}>
+          <ArrowUp className="h-3 w-3" />
+          Prix croissant
+        </button>
 
-          <button onClick={() => handleSort('priceDesc')} className={getButtonClass('priceDesc')}>
-            <ArrowDown className="h-3 w-3" />
-            Prix décroissant
-          </button>
+        <button onClick={() => handleSort('priceDesc')} className={getButtonClass('priceDesc')}>
+          <ArrowDown className="h-3 w-3" />
+          Prix décroissant
+        </button>
 
-          <button onClick={() => handleSort('promotion')} className={getButtonClass('promotion')}>
-            <PercentCircle className="h-3 w-3" />
-            Promotions
-          </button>
+        <button onClick={() => handleSort('promotion')} className={getButtonClass('promotion')}>
+          <PercentCircle className="h-3 w-3" />
+          Promotions
+        </button>
 
-          <button onClick={() => handleSort('novelty')} className={getButtonClass('novelty')}>
-            <Sparkles className="h-3 w-3" />
-            Nouveautés
-          </button>
+        <button onClick={() => handleSort('novelty')} className={getButtonClass('novelty')}>
+          <Sparkles className="h-3 w-3" />
+          Nouveautés
+        </button>
         </div>
 
         <div className="flex items-center gap-2">

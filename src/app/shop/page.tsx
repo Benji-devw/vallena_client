@@ -7,10 +7,12 @@ import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 import ProductSkeleton from '@/components/shop/ProductSkeleton';
+import { commentsService, Comment } from '@/services/api/commentsService';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string; }[]>([]);
   const [allMatter, setAllMatter] = useState<{ id: string; name: string; }[]>([]);
@@ -76,8 +78,13 @@ export default function ShopPage() {
         setIsFilterChange(false);
       }
     };
-
     loadProducts();
+
+    const loadComments = async () => {
+      const comments = await commentsService.getComments();
+      setComments(comments);
+    };
+    loadComments();
   }, [searchParams]);
 
   // handler for filter change
@@ -101,7 +108,7 @@ export default function ShopPage() {
     }
   }, [loading, isFilterChange, searchParams]);
 
-  // console.log("🔍 matters", allMatter);
+  console.log("🔍 comments", comments);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
