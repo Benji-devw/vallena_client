@@ -7,18 +7,10 @@ import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 import ProductSkeleton from '@/components/shop/ProductSkeleton';
-<<<<<<< HEAD
-=======
-// import { commentsService, Comment } from '@/services/api/commentsService';
->>>>>>> 73f904f7d863dcef889cabb3eac1af00742b1c65
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
-<<<<<<< HEAD
-=======
-  // const [comments, setComments] = useState<Comment[]>([]);
->>>>>>> 73f904f7d863dcef889cabb3eac1af00742b1c65
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string; }[]>([]);
   const [allMatter, setAllMatter] = useState<{ id: string; name: string; }[]>([]);
@@ -97,15 +89,6 @@ export default function ShopPage() {
       }
     };
     loadProducts();
-<<<<<<< HEAD
-=======
-
-    // const loadComments = async () => {
-    //   // const comments = await commentsService.getComments();
-    //   // setComments(comments);
-    // };
-    // loadComments();
->>>>>>> 73f904f7d863dcef889cabb3eac1af00742b1c65
   }, [searchParams]);
 
   // handler for filter change
