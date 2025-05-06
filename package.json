@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest"
+    "test": "vitest --config vitest.config.mts",
+    "test:services-api": "vitest --config vitest.config.mts src/__tests__/services_api/",
+    "test:home": "vitest --config vitest.config.mts src/__tests__/home/"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -30,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vitejs/plugin-react": "^4.4.1",
+    "dotenv": "^16.5.0",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "jsdom": "^26.1.0",

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { SlidersHorizontal, ArrowUp, ArrowDown, Sparkles, PercentCircle, Grid, List } from 'lucide-react';
 import { Product } from '@/services/api/productService';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SortByProps {
   products: Product[];
@@ -18,6 +19,8 @@ type SortOption = {
 };
 
 export default function SortBy({ products, onProductsSort, onViewModeChange, viewMode }: SortByProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [sortOptions, setSortOptions] = useState<Record<string, SortOption>>({
     priceAsc: { type: 'price', order: 'asc', active: false },
@@ -25,6 +28,42 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
     promotion: { type: 'promotion', order: 'asc', active: false },
     novelty: { type: 'novelty', order: 'asc', active: false },
   });
+
+  // Synchronize state with URL parameters on component mount and when URL changes
+  useEffect(() => {
+    const sortParam = searchParams.get('sort');
+    
+    if (sortParam) {
+      setSortOptions(prev => {
+        const newOptions = { ...prev };
+        Object.keys(newOptions).forEach(key => {
+          newOptions[key].active = false;
+        });
+        
+        // Map URL parameter to sort option
+        if (sortParam === 'price-asc') {
+          newOptions.priceAsc.active = true;
+        } else if (sortParam === 'price-desc') {
+          newOptions.priceDesc.active = true;
+        } else if (sortParam === 'promotions') {
+          newOptions.promotion.active = true;
+        } else if (sortParam === 'nouveautes') {
+          newOptions.novelty.active = true;
+        }
+        
+        return newOptions;
+      });
+    } else {
+      // Reset all options if no sort parameter
+      setSortOptions(prev => {
+        const newOptions = { ...prev };
+        Object.keys(newOptions).forEach(key => {
+          newOptions[key].active = false;
+        });
+        return newOptions;
+      });
+    }
+  }, [searchParams]);
 
   // Effect to apply the sort when the options change
   useEffect(() => {
@@ -65,6 +104,7 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
   }, [products, sortOptions, onProductsSort]);
 
   const handleSort = useCallback((optionKey: string) => {
+    // Update internal state
     setSortOptions(prev => {
       const newOptions = JSON.parse(JSON.stringify(prev)); // Deep copy
       Object.keys(newOptions).forEach(key => {
@@ -72,13 +112,42 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
           newOptions[key].active = false;
         }
       });
-      newOptions[optionKey].active = !prev[optionKey].active;
+      
+      const isActive = !prev[optionKey].active;
+      newOptions[optionKey].active = isActive;
+      
+      // Update URL with the appropriate parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      if (isActive) {
+        let sortValue = '';
+        switch (optionKey) {
+          case 'priceAsc':
+            sortValue = 'price-asc';
+            break;
+          case 'priceDesc':
+            sortValue = 'price-desc';
+            break;
+          case 'promotion':
+            sortValue = 'promotions';
+            break;
+          case 'novelty':
+            sortValue = 'nouveautes';
+            break;
+        }
+        
+        urlParams.set('sort', sortValue);
+      } else {
+        urlParams.delete('sort');
+      }
+      
+      // Update URL without full page reload
+      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+      router.replace(newUrl, { scroll: false });
+      
       return newOptions;
     });
-  }, []);
-  
-  
-  
+  }, [router]);
 
   const getButtonClass = (optionKey: string) => {
     const baseClass =
