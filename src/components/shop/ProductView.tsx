@@ -1,13 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Product } from '@/services/api/productService';
 import { FileText, Info, Star } from 'lucide-react';
+import { commentsService, Comment } from '@/services/api/commentService';
+import CommentCard from './CommentCard';
 
-interface TabsProductViewProps {
+interface ProductViewProps {
   product: Product;
 }
 
-export default function TabsProductView({ product }: TabsProductViewProps) {
+export default function ProductView({ product }: ProductViewProps) {
   const [activeTab, setActiveTab] = useState('description');
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await commentsService.getCommentsByProduct(product._id);
+        setComments(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des commentaires:', error);
+      }
+    };
+    fetchComments();
+  }, [product._id]);
 
   const tabs = [
     { id: 'description', label: 'Description', icon: FileText },
@@ -37,7 +52,7 @@ export default function TabsProductView({ product }: TabsProductViewProps) {
   ];
 
   return (
-    <div className="w-full bg-gray-50 dark:bg-gray-800 mt-16 py-12">
+    <div className="w-full bg-gray-100 dark:bg-gray-800 mt-16 py-12 rounded-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Tabs navigation */}
@@ -79,7 +94,7 @@ export default function TabsProductView({ product }: TabsProductViewProps) {
             {activeTab === 'description' && (
               <div className="prose prose-sm max-w-none dark:prose-invert">
                 {product.descriptionProduct ? (
-                  <p>{product.descriptionProduct}</p>
+                  <p className="text-gray-500">{product.descriptionProduct}</p>
                 ) : (
                   <p className="text-gray-500 italic">Aucune description disponible</p>
                 )}
@@ -93,7 +108,7 @@ export default function TabsProductView({ product }: TabsProductViewProps) {
                     {productDetails.map(detail => (
                       detail.value && (
                         <tr key={detail.id}>
-                          <th scope="row" className="py-4 px-4 text-sm font-medium text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800">
+                          <th scope="row" className="py-4 px-4 text-sm font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800">
                             {detail.label}
                           </th>
                           <td className="py-4 px-4 text-sm text-gray-500 dark:text-gray-400">
@@ -108,8 +123,17 @@ export default function TabsProductView({ product }: TabsProductViewProps) {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 dark:text-gray-400">Les avis seront bientôt disponibles</p>
+              <div className="space-y-6">
+                <div className="flex items-center justify-center">
+                    <button className="bg-primary-500 text-white px-4 py-2 rounded-md">Ajouter un avis</button>
+                </div>
+                {comments.length === 0 ? (
+                    <p className="text-gray-500 italic text-center">Aucun avis pour ce produit</p>
+                ) : (
+                  comments.map((comment, index) => (
+                    <CommentCard key={index} comment={comment} />
+                  ))
+                )}
               </div>
             )}
           </div>

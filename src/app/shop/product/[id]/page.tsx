@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { productService } from '@/services/api/productService';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
-import TabsProductView from '@/components/shop/TabsProductView';
+import ProductView from '@/components/shop/ProductView';
+import ColorCircle from '@/components/ui/ColorCircle';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -15,6 +16,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   // Load product data
   useEffect(() => {
@@ -68,12 +70,16 @@ export default function ProductPage() {
     setSelectedColor(color);
   };
 
+  const handleSizeChange = (size: string) => {
+    setSelectedSize(size);
+  };
+
   // Fonction pour ajouter le produit au panier
   const handleAddToCart = () => {
     try {
       // Récupérer le panier actuel (ou initialiser un tableau vide)
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      
+
       // Ajouter le produit au panier
       const productToAdd = {
         productId: product._id,
@@ -83,12 +89,12 @@ export default function ProductPage() {
         color: selectedColor,
         image: product.imgCollection[0],
       };
-      
+
       // Vérifier si le produit existe déjà dans le panier
       const existingProductIndex = cart.findIndex(
         (item: any) => item.productId === product._id && item.color === selectedColor
       );
-      
+
       if (existingProductIndex >= 0) {
         // Mettre à jour la quantité si le produit existe déjà
         cart[existingProductIndex].quantity += quantity;
@@ -96,19 +102,19 @@ export default function ProductPage() {
         // Ajouter le nouveau produit au panier
         cart.push(productToAdd);
       }
-      
+
       // Sauvegarder le panier dans localStorage
       localStorage.setItem('cart', JSON.stringify(cart));
-      
+
       // Feedback à l'utilisateur (uniquement dans un environnement navigateur)
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
         window.alert('Produit ajouté au panier !');
       }
     } catch (error) {
-      console.error('Erreur lors de l\'ajout au panier:', error);
+      console.error("Erreur lors de l'ajout au panier:", error);
       // Uniquement dans un environnement navigateur
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
-        window.alert('Une erreur est survenue lors de l\'ajout au panier');
+        window.alert("Une erreur est survenue lors de l'ajout au panier");
       }
     }
   };
@@ -177,52 +183,49 @@ export default function ProductPage() {
               </div>
             )}
 
-            {/* Product characteristics */}
-            <div className="border-t border-gray-200 pt-6">
-              <dl className="space-y-4">
+            <div className="mt-6">
+              <div className="grid grid-cols-2 text-center dark:border-gray-700 rounded-lg overflow-hidden">
                 {product.matter && (
-                  <div>
+                  <div className="p-4 border-r border-b border-gray-200 dark:border-gray-700">
                     <dt className="font-medium text-gray-900 dark:text-white">Matière</dt>
                     <dd className="mt-1 text-gray-500">{product.matter}</dd>
                   </div>
                 )}
                 {product.composition && (
-                  <div>
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <dt className="font-medium text-gray-900 dark:text-white">Composition</dt>
                     <dd className="mt-1 text-gray-500">{product.composition}</dd>
                   </div>
                 )}
                 {product.entretien && (
-                  <div>
+                  <div className="p-4 border-r border-gray-200 dark:border-gray-700">
                     <dt className="font-medium text-gray-900 dark:text-white">Entretien</dt>
                     <dd className="mt-1 text-gray-500">{product.entretien}</dd>
                   </div>
                 )}
+                {product.weightProduct && (
+                  <div className="p-4">
+                    <dt className="font-medium text-gray-900 dark:text-white">Poids</dt>
+                    <dd className="mt-1 text-gray-500">{product.weightProduct}</dd>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Product characteristics */}
+            <div className="border-b border-gray-200 pb-6">
+              <dl className="space-y-4">
                 {product.color && (
                   <div>
-                    <dt className="font-medium text-gray-900 dark:text-white">Couleurs disponibles</dt>
+                    <dt className="font-medium text-gray-900 dark:text-white">
+                      Couleurs disponibles
+                    </dt>
                     <dd className="mt-2 flex flex-wrap gap-2">
                       {product.color.split(',').map((color: string, index: number) => (
-                        <div
+                        <ColorCircle
                           key={index}
-                          className={`w-8 h-8 rounded-full cursor-pointer shadow-sm dark:hover:ring-2 dark:hover:ring-primary-600 ${
-                            selectedColor === color.trim() ? 'border-4 dark:border-gray-900 ring-2 ring-primary-600' : ''
-                          } ${
-                            color.trim().toLowerCase() === 'bleu' ? 'bg-blue-500' :
-                            color.trim().toLowerCase() === 'rouge' ? 'bg-red-500' :
-                            color.trim().toLowerCase() === 'vert' ? 'bg-green-500' :
-                            color.trim().toLowerCase() === 'jaune' ? 'bg-yellow-500' :
-                            color.trim().toLowerCase() === 'noir' ? 'bg-black' :
-                            color.trim().toLowerCase() === 'blanc' ? 'bg-white border border-gray-300' :
-                            color.trim().toLowerCase() === 'gris' ? 'bg-gray-500' :
-                            color.trim().toLowerCase() === 'rose' ? 'bg-pink-500' :
-                            color.trim().toLowerCase() === 'orange' ? 'bg-orange-500' :
-                            color.trim().toLowerCase() === 'marron' ? 'bg-amber-800' :
-                            color.trim().toLowerCase() === 'violet' ? 'bg-purple-500' :
-                            color.trim().toLowerCase() === 'beige' ? 'bg-amber-100' :
-                            'bg-gray-200'
-                          }`}
-                          title={color.trim()}
+                          color={color.trim()}
+                          isSelected={selectedColor === color.trim()}
                           onClick={() => handleColorChange(color.trim())}
                         />
                       ))}
@@ -230,6 +233,26 @@ export default function ProductPage() {
                   </div>
                 )}
               </dl>
+              {product.sizeProduct && (
+                <div>
+                  <h3 className="mt-4 font-medium text-gray-900 dark:text-white">
+                    Tailles disponibles
+                  </h3>
+                  <div className="mt-4 flex items-center gap-x-3">
+                    {product.sizeProduct.split(',').map((size: string, index: number) => (
+                      <span
+                        key={index}
+                        onClick={() => handleSizeChange(size.trim())}
+                        className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500   rounded-md p-2 min-w-10 text-center ${
+                          selectedSize === size.trim() ? 'border-primary-500 text-primary-500' : ''
+                        }`}
+                      >
+                        {size.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Selector of quantity and add to cart button */}
@@ -250,7 +273,7 @@ export default function ProductPage() {
                 </button>
               </div>
 
-              <button 
+              <button
                 onClick={handleAddToCart}
                 className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
               >
@@ -261,9 +284,9 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
-      
+
       {/* Product description tabs */}
-      <TabsProductView product={product} />
+      <ProductView product={product} />
     </>
   );
 }

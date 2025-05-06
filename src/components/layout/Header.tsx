@@ -29,7 +29,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <span className="text-2xl font-bold text-primary-600">
-                <img src="/images/logo.png" alt="Vallena" className="w-10 h-10" />
+                <img src="/images/logo.png" alt="Vallena" className="w-12 h-12" />
               </span>
             </Link>
 
