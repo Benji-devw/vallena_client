@@ -29,10 +29,9 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
     novelty: { type: 'novelty', order: 'asc', active: false },
   });
 
-  // Synchronize state with URL parameters on component mount and when URL changes
+  // Effect to handle URL updates
   useEffect(() => {
     const sortParam = searchParams.get('sort');
-    
     if (sortParam) {
       setSortOptions(prev => {
         const newOptions = { ...prev };
@@ -53,15 +52,6 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
         
         return newOptions;
       });
-    } else {
-      // Reset all options if no sort parameter
-      setSortOptions(prev => {
-        const newOptions = { ...prev };
-        Object.keys(newOptions).forEach(key => {
-          newOptions[key].active = false;
-        });
-        return newOptions;
-      });
     }
   }, [searchParams]);
 
@@ -70,7 +60,7 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
     // Apply the sort
     let sortedProducts = [...products];
 
-    // Appliquer les tris actifs
+    // Apply the sort
     if (sortOptions.priceAsc.active) {
       sortedProducts.sort((a, b) => a.priceProduct - b.priceProduct);
     } else if (sortOptions.priceDesc.active) {
@@ -116,38 +106,39 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
       const isActive = !prev[optionKey].active;
       newOptions[optionKey].active = isActive;
       
-      // Update URL with the appropriate parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      
-      if (isActive) {
-        let sortValue = '';
-        switch (optionKey) {
-          case 'priceAsc':
-            sortValue = 'price-asc';
-            break;
-          case 'priceDesc':
-            sortValue = 'price-desc';
-            break;
-          case 'promotion':
-            sortValue = 'promotions';
-            break;
-          case 'novelty':
-            sortValue = 'nouveautes';
-            break;
-        }
-        
-        urlParams.set('sort', sortValue);
-      } else {
-        urlParams.delete('sort');
-      }
-      
-      // Update URL without full page reload
-      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-      router.replace(newUrl, { scroll: false });
-      
       return newOptions;
     });
-  }, [router]);
+
+    // Update URL in useEffect
+    const urlParams = new URLSearchParams(window.location.search);
+    const isActive = !sortOptions[optionKey].active;
+    
+    if (isActive) {
+      let sortValue = '';
+      switch (optionKey) {
+        case 'priceAsc':
+          sortValue = 'price-asc';
+          break;
+        case 'priceDesc':
+          sortValue = 'price-desc';
+          break;
+        case 'promotion':
+          sortValue = 'promotions';
+          break;
+        case 'novelty':
+          sortValue = 'nouveautes';
+          break;
+      }
+      
+      urlParams.set('sort', sortValue);
+    } else {
+      urlParams.delete('sort');
+    }
+    
+    // Update URL without full page reload
+    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    router.replace(newUrl, { scroll: false });
+  }, [router, sortOptions]);
 
   const getButtonClass = (optionKey: string) => {
     const baseClass =
