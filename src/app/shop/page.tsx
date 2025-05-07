@@ -55,6 +55,7 @@ export default function ShopPage() {
           matter: searchParams.get('matter') || undefined,
           color: searchParams.get('color') || undefined,
           limit: limit,
+          sort: searchParams.get('sort') || undefined,
         };
 
         const data = await productService.getAllProducts(filters);
@@ -95,11 +96,6 @@ export default function ShopPage() {
     setIsFilterChange(isLoading);
   }, []);
 
-  // handler for product sort
-  const handleProductsSort = useCallback((sortedProducts: Product[]) => {
-    setFilteredProducts(sortedProducts);
-  }, []);
-
   const handleLoadMore = () => {
     setLimit(prev => prev + 6);
   };
@@ -132,8 +128,6 @@ export default function ShopPage() {
             {/* sort and filters */}
             <div className="mb-4" data-testid="shop-sort-container">
               <SortBy
-                products={products}
-                onProductsSort={handleProductsSort}
                 onViewModeChange={setViewMode}
                 viewMode={viewMode}
               />
@@ -142,7 +136,7 @@ export default function ShopPage() {
             {/* initial loading display */}
             {!initialLoadComplete ? (
               <div data-testid="shop-loading-skeleton">
-                <ProductSkeleton />
+                <ProductSkeleton viewMode={viewMode} />
               </div>
             ) : error ? (
               <div className="text-center text-red-500" data-testid="shop-error-message">
@@ -160,7 +154,7 @@ export default function ShopPage() {
                     className="absolute inset-0 bg-white/90 dark:bg-dark-900/90 z-10"
                     data-testid="shop-filter-loading-overlay"
                   >
-                    <ProductSkeleton />
+                    <ProductSkeleton viewMode={viewMode} />
                   </div>
                 )}
 
@@ -168,7 +162,7 @@ export default function ShopPage() {
                 <div className="min-h-[500px]">
                   {/* products grid with transition */}
                   <div
-                    className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} gap-6 transition-all duration-300 ease-in-out`}
+                    className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col'} gap-0 transition-all duration-300 ease-in-out border-t border-l border-gray-200`}
                     data-testid="shop-products-layout"
                   >
                     {Array.isArray(filteredProducts) &&
@@ -176,7 +170,7 @@ export default function ShopPage() {
                         <div
                           key={product._id}
                           ref={index === filteredProducts.length - 1 ? lastProductRef : null}
-                          className="transition-all duration-500 ease-in-out transform hover:text-primary-500-important"
+                          className="transition-all duration-500 ease-in-out transform hover:text-primary-500-important border-r border-b border-gray-200"
                           style={{
                             opacity: 1,
                             animationFillMode: 'forwards',

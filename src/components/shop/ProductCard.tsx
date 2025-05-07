@@ -50,9 +50,9 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   const averageRating = calculateAverageRating();
 
   return (
-    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden">
+    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">
       <div
-        className={`flex ${viewMode === 'horizontal' ? 'flex-row gap-x-6 gap-y-8 min-h-[300px]' : 'flex-col'}`}
+        className={`flex h-full ${viewMode === 'horizontal' ? 'flex-row gap-x-6 gap-y-8 min-h-[300px]' : 'flex-col'}`}
       >
         <div
           className={`relative ${viewMode === 'horizontal' ? 'w-full sm:col-span-4 lg:col-span-5' : 'w-full'} ${viewMode === 'horizontal' ? 'aspect-2/3' : 'aspect-square'} overflow-hidden rounded-lg bg-gray-100`}
@@ -61,7 +61,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             src={product.imgCollection[0] || '/images/placeholder.png'}
             alt={product.titleProduct}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority
             className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           />

@@ -6,8 +6,8 @@ import { Product } from '@/services/api/productService';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SortByProps {
-  products: Product[];
-  onProductsSort: (sortedProducts: Product[]) => void;
+  // products: Product[]; // Supprimé
+  // onProductsSort: (sortedProducts: Product[]) => void; // Supprimé
   onViewModeChange?: (mode: 'grid' | 'horizontal') => void;
   viewMode?: 'grid' | 'horizontal';
 }
@@ -18,7 +18,7 @@ type SortOption = {
   active: boolean;
 };
 
-export default function SortBy({ products, onProductsSort, onViewModeChange, viewMode }: SortByProps) {
+export default function SortBy({ onViewModeChange, viewMode }: SortByProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -54,44 +54,6 @@ export default function SortBy({ products, onProductsSort, onViewModeChange, vie
       });
     }
   }, [searchParams]);
-
-  // Effect to apply the sort when the options change
-  useEffect(() => {
-    // Apply the sort
-    let sortedProducts = [...products];
-
-    // Apply the sort
-    if (sortOptions.priceAsc.active) {
-      sortedProducts.sort((a, b) => a.priceProduct - b.priceProduct);
-    } else if (sortOptions.priceDesc.active) {
-      sortedProducts.sort((a, b) => b.priceProduct - a.priceProduct);
-    }
-
-    if (sortOptions.promotion.active) {
-      sortedProducts.sort((a, b) => {
-        if (a.promotionProduct === b.promotionProduct) {
-          // If both are in promotion or not, keep the current order
-          return 0;
-        }
-        // Put the products in promotion first
-        return a.promotionProduct ? -1 : 1;
-      });
-    }
-
-    if (sortOptions.novelty.active) {
-      sortedProducts.sort((a, b) => {
-        if (a.novelty === b.novelty) {
-          // If both are new or not, sort by creation date
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        }
-        // Put the novelty in first
-        return a.novelty ? -1 : 1;
-      });
-    }
-
-    // Update the list of sorted products
-    onProductsSort(sortedProducts);
-  }, [products, sortOptions, onProductsSort]);
 
   const handleSort = useCallback((optionKey: string) => {
     // Update internal state
