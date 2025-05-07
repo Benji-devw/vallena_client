@@ -10,7 +10,6 @@ import ProductSkeleton from '@/components/shop/ProductSkeleton';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string }[]>([]);
   const [allMatter, setAllMatter] = useState<{ id: string; name: string }[]>([]);
@@ -18,7 +17,6 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFilterChange, setIsFilterChange] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const lastProductRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'horizontal'>('grid');
@@ -47,13 +45,14 @@ export default function ShopPage() {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        setShowSkeleton(true);
         const startTime = Date.now();
 
         const filters: ProductFilters = {
           category: searchParams.get('category') || undefined,
           matter: searchParams.get('matter') || undefined,
           color: searchParams.get('color') || undefined,
+          minPrice: searchParams.get('minPrice') || undefined,
+          maxPrice: searchParams.get('maxPrice') || undefined,
           limit: limit,
           sort: searchParams.get('sort') || undefined,
         };
@@ -65,7 +64,6 @@ export default function ShopPage() {
             ? data.products
             : [];
 
-        setProducts(productsArray);
         setFilteredProducts(productsArray);
         setError(null);
 
@@ -74,14 +72,11 @@ export default function ShopPage() {
         if (elapsedTime < 1000) {
           await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
         }
-        setShowSkeleton(false);
         setInitialLoadComplete(true);
       } catch (err) {
         console.error('Erreur lors du chargement des produits:', err);
         setError('Erreur lors du chargement des produits');
-        setProducts([]);
         setFilteredProducts([]);
-        setShowSkeleton(false);
         setInitialLoadComplete(true);
       } finally {
         setLoading(false);

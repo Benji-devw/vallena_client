@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal } from 'lucide-react';
 
@@ -25,7 +25,6 @@ interface FilterState {
   matter: string;
   color: string;
   minPrice: string;
-  maxPrice: string;
 }
 
 export default function Filters({ onFilterChange, categories, matters, colors }: FiltersProps) {
@@ -36,31 +35,29 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get('category') || '',
     minPrice: searchParams.get('minPrice') || '',
-    maxPrice: searchParams.get('maxPrice') || '',
     matter: searchParams.get('matter') || '',
     color: searchParams.get('color') || '',
   });
 
+  const PRICE_SLIDER_MAX_VALUE = "80"; // Max value for the price slider
+  const DEBOUNCE_DELAY = 500; // Délai pour le debounce en millisecondes
+
   // check if there are active filters
   const hasActiveFilters =
-    filters.category || filters.minPrice || filters.maxPrice || filters.matter || filters.color;
+    filters.category || filters.minPrice || filters.matter || filters.color;
 
-  // effect to update the URL when the filters change
+  // effect to update the URL when the filters change (avec debounce)
   useEffect(() => {
-    const updateURL = () => {
-      // Créer un nouvel objet URLSearchParams avec les paramètres existants
+    const handler = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
 
-      // Vérifier si on a des paramètres à mettre à jour
       const hasParams =
         filters.category !== '' ||
         filters.matter !== '' ||
         filters.color !== '' ||
-        filters.minPrice !== '' ||
-        filters.maxPrice !== '';
+        filters.minPrice !== '';
 
       if (!hasParams) {
-        // Si aucun filtre n'est actif, supprimer tous les paramètres sauf 'sort'
         const sortParam = params.get('sort');
         params.forEach((_, key) => {
           if (key !== 'sort') {
@@ -72,7 +69,6 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           return;
         }
       } else {
-        // Mettre à jour les paramètres de filtre
         if (filters.category !== '') {
           params.set('category', filters.category);
         } else {
@@ -93,55 +89,50 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         } else {
           params.delete('minPrice');
         }
-        if (filters.maxPrice !== '') {
-          params.set('maxPrice', filters.maxPrice);
-        } else {
-          params.delete('maxPrice');
-        }
+        params.delete('maxPrice'); // Assurons-nous toujours que maxPrice est supprimé
       }
-
-      // notify the parent that the loading starts
-      onFilterChange(true);
-
-      // use replace with scroll: false to avoid the history
+      // onFilterChange(true); // Déjà appelé de façon synchrone dans handleFilterChange
       router.replace(`/shop?${params.toString()}`);
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      clearTimeout(handler);
     };
+  }, [filters, router, searchParams]); // searchParams est une dépendance car utilisé dans la construction de l'URL
 
-    // if (filter)
-    updateURL();
-  }, [filters, router, onFilterChange]);
-
-  const handleFilterChange = (key: keyof FilterState, value: string) => {
+  const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    onFilterChange(true);
+    onFilterChange(true); // Feedback visuel immédiat
 
+    // Plus de router.push ici, géré par le useEffect débouché
+    /*
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set(key, value);
     } else {
       params.delete(key);
     }
+    if (key === 'minPrice' || !value) {
+      params.delete('maxPrice');
+    }
     router.push(`/shop?${params.toString()}`);
-  };
+    */
+  }, [filters, onFilterChange]); // searchParams retiré des deps car plus utilisé ici, filters et onFilterChange sont les deps
 
   const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!hasActiveFilters) return;
 
-    // notify the parent that the loading starts
     onFilterChange(true);
 
-    // reset filters
     setFilters({
       category: '',
       matter: '',
       color: '',
       minPrice: '',
-      maxPrice: '',
     });
 
-    // use replace with scroll: false
     router.replace('/shop');
   };
 
@@ -321,49 +312,25 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             Prix
           </label>
           <div className="space-y-4">
-            {/* Slider Min */}
-            <div className="relative" data-testid="min-price-filter">
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                Prix minimum
-              </label>
+            {/* Slider Min/Unique */}
+            <div className="relative" data-testid="price-slider-container">
               <input
                 type="range"
                 min="0"
-                max="200"
+                max={PRICE_SLIDER_MAX_VALUE}
                 step="10"
-                value={filters.minPrice || 0}
+                value={filters.minPrice || "0"}
                 onChange={e => handleFilterChange('minPrice', e.target.value)}
                 className="range"
-                data-testid="min-price-slider"
+                data-testid="price-slider"
               />
               <div
                 className="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                data-testid="min-price-value"
+                data-testid="price-value-display"
               >
-                {filters.minPrice || 0}€
-              </div>
-            </div>
-
-            {/* Slider Max */}
-            <div className="relative" data-testid="max-price-filter">
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                Prix maximum
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="300"
-                step="10"
-                value={filters.maxPrice || 300}
-                onChange={e => handleFilterChange('maxPrice', e.target.value)}
-                className="range"
-                data-testid="max-price-slider"
-              />
-              <div
-                className="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                data-testid="max-price-value"
-              >
-                {filters.maxPrice || 300}€
+                {filters.minPrice && filters.minPrice === PRICE_SLIDER_MAX_VALUE
+                  ? `${PRICE_SLIDER_MAX_VALUE}€ et plus`
+                  : `${filters.minPrice || "0"}€`}
               </div>
             </div>
           </div>
