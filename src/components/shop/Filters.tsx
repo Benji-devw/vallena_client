@@ -39,12 +39,11 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     color: searchParams.get('color') || '',
   });
 
-  const PRICE_SLIDER_MAX_VALUE = "80"; // Max value for the price slider
+  const PRICE_SLIDER_MAX_VALUE = '80'; // Max value for the price slider
   const DEBOUNCE_DELAY = 500; // Délai pour le debounce en millisecondes
 
   // check if there are active filters
-  const hasActiveFilters =
-    filters.category || filters.minPrice || filters.matter || filters.color;
+  const hasActiveFilters = filters.category || filters.minPrice || filters.matter || filters.color;
 
   // effect to update the URL when the filters change (avec debounce)
   useEffect(() => {
@@ -100,13 +99,14 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     };
   }, [filters, router, searchParams]); // searchParams est une dépendance car utilisé dans la construction de l'URL
 
-  const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange(true); // Feedback visuel immédiat
+  const handleFilterChange = useCallback(
+    (key: keyof FilterState, value: string) => {
+      const newFilters = { ...filters, [key]: value };
+      setFilters(newFilters);
+      onFilterChange(true); // Feedback visuel immédiat
 
-    // Plus de router.push ici, géré par le useEffect débouché
-    /*
+      // Plus de router.push ici, géré par le useEffect débouché
+      /*
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set(key, value);
@@ -118,7 +118,9 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     }
     router.push(`/shop?${params.toString()}`);
     */
-  }, [filters, onFilterChange]); // searchParams retiré des deps car plus utilisé ici, filters et onFilterChange sont les deps
+    },
+    [filters, onFilterChange]
+  ); // searchParams retiré des deps car plus utilisé ici, filters et onFilterChange sont les deps
 
   const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -143,7 +145,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     >
       <div className="flex items-center justify-between mb-4">
         <h2
-          className="text-lg font-semibold text-gray-900 dark:text-white"
+          className="text-lg font-semibold"
           data-testid="filters-title"
         >
           Filtres
@@ -152,7 +154,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           <button
             onClick={e => handleReset(e)}
             disabled={!hasActiveFilters}
-            className={`text-sm transition-colors ${
+            className={` transition-colors ${
               hasActiveFilters
                 ? 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
                 : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
@@ -172,7 +174,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
       </div>
 
       <div
-        className={`space-y-4 ${isOpen ? 'block' : 'hidden lg:block'}`}
+        className={`space-y-4 text-md ${isOpen ? 'block' : 'hidden lg:block'}`}
         data-testid="filters-content"
       >
         {/* Catégories */}
@@ -227,14 +229,14 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         <div data-testid="color-filter-section">
           <div className="flex items-center justify-between mb-1">
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block font-medium text-gray-700 dark:text-gray-300"
               data-testid="color-filter-label"
             >
               Couleur
             </label>
             <button
               onClick={() => setIsColorExpanded(!isColorExpanded)}
-              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              className=" text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               data-testid="toggle-color-expand-button"
             >
               {isColorExpanded ? 'Réduire' : 'Voir plus'}
@@ -263,7 +265,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
               <button
                 key={color.id}
                 onClick={() => handleFilterChange('color', color.id)}
-                className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+                className={`flex items-center gap-2 px-3 py-1 rounded-full  ${
                   filters.color === color.id
                     ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
@@ -319,18 +321,18 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                 min="0"
                 max={PRICE_SLIDER_MAX_VALUE}
                 step="10"
-                value={filters.minPrice || "0"}
+                value={filters.minPrice || '0'}
                 onChange={e => handleFilterChange('minPrice', e.target.value)}
                 className="range"
                 data-testid="price-slider"
               />
               <div
-                className="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                className="text-md text-gray-500 dark:text-gray-400 mt-1"
                 data-testid="price-value-display"
               >
                 {filters.minPrice && filters.minPrice === PRICE_SLIDER_MAX_VALUE
                   ? `${PRICE_SLIDER_MAX_VALUE}€ et plus`
-                  : `${filters.minPrice || "0"}€`}
+                  : `${filters.minPrice || '0'}€`}
               </div>
             </div>
           </div>
