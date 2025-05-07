@@ -39,13 +39,13 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     color: searchParams.get('color') || '',
   });
 
-  const PRICE_SLIDER_MAX_VALUE = '80'; // Max value for the price slider
-  const DEBOUNCE_DELAY = 500; // Délai pour le debounce en millisecondes
+  const PRICE_SLIDER_MAX_VALUE = '80';
+  const DEBOUNCE_DELAY = 500;
 
   // check if there are active filters
   const hasActiveFilters = filters.category || filters.minPrice || filters.matter || filters.color;
 
-  // effect to update the URL when the filters change (avec debounce)
+  // effect to update the URL when the filters change (with debounce delay)
   useEffect(() => {
     const handler = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -88,39 +88,33 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         } else {
           params.delete('minPrice');
         }
-        params.delete('maxPrice'); // Assurons-nous toujours que maxPrice est supprimé
+        params.delete('maxPrice');
       }
-      // onFilterChange(true); // Déjà appelé de façon synchrone dans handleFilterChange
       router.replace(`/shop?${params.toString()}`);
     }, DEBOUNCE_DELAY);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [filters, router, searchParams]); // searchParams est une dépendance car utilisé dans la construction de l'URL
+  }, [filters, router, searchParams]);
 
-  const handleFilterChange = useCallback(
-    (key: keyof FilterState, value: string) => {
-      const newFilters = { ...filters, [key]: value };
-      setFilters(newFilters);
-      onFilterChange(true); // Feedback visuel immédiat
+  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      // Si on clique sur la même couleur, on la désélectionne
+      if (filterType === 'color' && prev[filterType] === value) {
+        newFilters[filterType] = '';
+      } else {
+        newFilters[filterType] = value;
+      }
+      return newFilters;
+    });
+  };
 
-      // Plus de router.push ici, géré par le useEffect débouché
-      /*
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    if (key === 'minPrice' || !value) {
-      params.delete('maxPrice');
-    }
-    router.push(`/shop?${params.toString()}`);
-    */
-    },
-    [filters, onFilterChange]
-  ); // searchParams retiré des deps car plus utilisé ici, filters et onFilterChange sont les deps
+  // Effet pour gérer l'appel à onFilterChange
+  useEffect(() => {
+    onFilterChange(true);
+  }, [filters, onFilterChange]);
 
   const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -265,15 +259,15 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
               <button
                 key={color.id}
                 onClick={() => handleFilterChange('color', color.id)}
-                className={`flex items-center gap-2 px-3 py-1 rounded-full  ${
+                className={`flex flex-col items-center gap-2 px-3 py-1 rounded-sm  ${
                   filters.color === color.id
                     ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                    : ' text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                 }`}
                 data-testid={`color-chip-${color.id}`}
               >
                 <span
-                  className={`w-5 h-5 rounded-full ${
+                  className={`w-7 h-7 rounded-full ${
                     color.name === 'Bleu'
                       ? 'bg-blue-500'
                       : color.name === 'Rouge'
