@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { productService } from '@/services/api/productService';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
-import ProductView from '@/components/shop/ProductView';
+import { Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
+import ProductTabs from '@/components/shop/ProductTabs';
 import ColorCircle from '@/components/ui/ColorCircle';
 
 export default function ProductPage() {
@@ -273,20 +273,29 @@ export default function ProductPage() {
                 </button>
               </div>
 
-              <button
-                onClick={handleAddToCart}
-                className="w-full flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Ajouter au panier</span>
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <span>Ajouter au panier</span>
+                </button>
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-primary-600 bg-primary-50 rounded-md hover:bg-primary-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                >
+                  <Heart className="h-5 w-5" />
+                  <span>Ajouter à la liste des souhaits</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Product description tabs */}
-      <ProductView product={product} />
+      <ProductTabs product={product} />
     </>
   );
 }

@@ -130,6 +130,29 @@ export const productService = {
     }
   },
 
+  async getSimilarProducts(productId: string, category?: string, limit: number = 6): Promise<Product[]> {
+    try {
+      const params = new URLSearchParams();
+      if (category) {
+        params.append('category', category);
+      }
+      // Demander un produit de plus au cas où le produit actuel serait retourné
+      params.append('limit', (limit + 1).toString()); 
+
+      const response = await axios.get(`${API_URL}/shop?${params.toString()}`);
+      // La structure de la réponse de l'API peut être { products: [] } ou directement []
+      let products: Product[] = response.data.products || response.data || [];
+      
+      // Filtrer le produit actuel de la liste et limiter au nombre désiré
+      products = products.filter(p => p._id !== productId).slice(0, limit);
+      
+      return products;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des produits similaires:', error);
+      return []; // Retourner un tableau vide en cas d'erreur pour éviter de casser le rendu
+    }
+  },
+
   // Get Promotional Products
   getPromotionalProducts: async () => {
     const response = await axios.get(`${API_URL}/products`, {
