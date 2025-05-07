@@ -286,7 +286,7 @@ export default function ProductPage() {
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-primary-600 bg-primary-50 rounded-md hover:bg-primary-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 >
                   <Heart className="h-5 w-5" />
-                  <span>Ajouter à la liste des souhaits</span>
+                  <span>Ajouter aux favoris</span>
                 </button>
               </div>
             </div>

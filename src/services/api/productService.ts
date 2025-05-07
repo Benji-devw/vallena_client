@@ -8,6 +8,8 @@ export interface Product {
   titleProduct: string;
   categoryProduct?: string;
   descriptionProduct?: string;
+  size_fit?: string;
+  method?: string;
   priceProduct: number;
   sizeProduct?: string;
   weightProduct?: string;

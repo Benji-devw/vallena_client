@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Product, productService } from '@/services/api/productService';
-import { FileText, Info, Star } from 'lucide-react';
+import { FileText, Info, Star, ChevronDown } from 'lucide-react';
 import { commentsService, Comment } from '@/services/api/commentService';
 import CommentCard from './CommentCard';
 import SliderProduct from './SliderProduct';
@@ -20,6 +20,19 @@ export default function ProductTabs({ product }: ProductTabsProps) {
     message: '',
     rating: 5
   });
+  const [openDropdowns, setOpenDropdowns] = useState({
+    sizeFit: false,
+    method: false,
+    fabrication: false,
+    entretien: false
+  });
+
+  const toggleDropdown = (dropdown: keyof typeof openDropdowns) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [dropdown]: !prev[dropdown]
+    }));
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -107,10 +120,10 @@ export default function ProductTabs({ product }: ProductTabsProps) {
                   onClick={() => setActiveTab(tab.id)}
                   className={`
                     group flex items-center space-x-3 whitespace-nowrap py-4 px-6 rounded-lg font-medium text-lg
-                    transition-all duration-200 ease-in-out transform
+                    transition-all duration-200 ease-in-out transform border
                     ${
                       activeTab === tab.id
-                        ? 'border border-primary-500 text-primary-500 shadow-lg'
+                        ? 'border border-primary-500 shadow-lg text-primary-500'
                         : 'text-gray-600 hover:bg-gray-200/70 dark:text-gray-300 dark:hover:bg-dark-700/70 hover:ring-1 hover:ring-gray-300 dark:hover:ring-gray-600'
                     }
                   `}
@@ -137,6 +150,70 @@ export default function ProductTabs({ product }: ProductTabsProps) {
                 ) : (
                   <p className="italic">Aucune description disponible.</p>
                 )}
+
+                <div className="mt-8 space-y-6">
+                  {/* Dropdown fit and size */}
+                  {product.size_fit && (
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                      <button
+                        onClick={() => toggleDropdown('sizeFit')}
+                        className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400"
+                      >
+                        <span>Taille et coupe</span>
+                        <ChevronDown 
+                          className={`h-5 w-5 transition-transform duration-200 ${
+                            openDropdowns.sizeFit ? 'transform rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                      
+                      <div className={`mt-4 space-y-4 overflow-hidden transition-all duration-200 ${
+                        openDropdowns.sizeFit ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}>
+                        <div className="flex items-start space-x-3">
+                          <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                            {product.size_fit
+                              .split('-')
+                              .filter(size => size.trim() !== '')
+                              .map((size: string, index: number) => (
+                                <li key={index}>{size.trim()}</li>
+                              ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dropdown method of fabrication */}
+                  {product.method && (
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                      <button
+                        onClick={() => toggleDropdown('method')}
+                        className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400"
+                      >
+                        <span>Méthode de fabrication</span>
+                        <ChevronDown 
+                          className={`h-5 w-5 transition-transform duration-200 ${
+                            openDropdowns.method ? 'transform rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                      <div className={`mt-4 space-y-4 overflow-hidden transition-all duration-200 ${
+                        openDropdowns.method ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}>
+                        <div className="flex items-start space-x-3">
+                          <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                            {product.method.split('-')
+                              .filter(method => method.trim() !== '')
+                              .map((method: string, index: number) => (
+                                <li key={index}>{method.trim()}</li>
+                              ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

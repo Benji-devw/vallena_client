@@ -175,7 +175,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   }}
                 >
                   <Heart className="h-5 w-5" />
-                  Ajouter à la wishlist
+                  Ajouter aux favoris
                 </button>
                 <button
                   className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 max-w-[200px] px-4 py-3 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
