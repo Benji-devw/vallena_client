@@ -18,6 +18,11 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
+  // Obtenir le stock pour la taille sélectionnée
+  const selectedSizeStock = selectedSize && product && Array.isArray(product.sizeProduct)
+    ? product.sizeProduct.find((item: { name: string, quantity: number }) => item.name === selectedSize)?.quantity || 0
+    : Infinity; // Si aucune taille n'est sélectionnée ou si les données ne sont pas prêtes, on considère le stock comme infini pour l'instant
+
   // Load product data
   useEffect(() => {
     const fetchProduct = async () => {
@@ -28,6 +33,14 @@ export default function ProductPage() {
         // Sélectionner la première couleur par défaut
         if (data.data.color && Array.isArray(data.data.color)) {
           setSelectedColor(data.data.color[0]);
+        }
+        // Sélectionner la première taille disponible par défaut
+        if (data.data.sizeProduct && Array.isArray(data.data.sizeProduct) && data.data.sizeProduct.length > 0) {
+          const firstAvailableSize = data.data.sizeProduct[0]; // On prend la première de la liste
+          if (firstAvailableSize && firstAvailableSize.name) {
+            setSelectedSize(firstAvailableSize.name);
+            setQuantity(1); // Réinitialiser la quantité à 1 lors de la sélection d'une nouvelle taille/produit
+          }
         }
         setError(null);
       } catch (err) {
@@ -59,7 +72,14 @@ export default function ProductPage() {
 
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
-      setQuantity(prev => prev + 1);
+      if (quantity < selectedSizeStock) {
+        setQuantity(prev => prev + 1);
+      } else {
+        // Optionnel : Alerter l'utilisateur que le stock max est atteint
+        if (typeof window !== 'undefined') {
+          alert(`Stock maximum atteint pour la taille ${selectedSize} (${selectedSizeStock} articles).`);
+        }
+      }
     } else if (type === 'decrement' && quantity > 1) {
       setQuantity(prev => prev - 1);
     }
@@ -71,6 +91,7 @@ export default function ProductPage() {
 
   const handleSizeChange = (size: string) => {
     setSelectedSize(size);
+    setQuantity(1);
   };
 
   // Fonction pour ajouter le produit au panier
@@ -118,7 +139,7 @@ export default function ProductPage() {
     }
   };
 
-  // console.log("🔴 product", selectedColor);
+  // console.log("🔴 product", product);
 
   return (
     <>
@@ -252,26 +273,41 @@ export default function ProductPage() {
                   </div>
                 )}
               </dl>
-              {product.sizeProduct && (
-                <div>
-                  <h3 className="mt-4 font-medium text-gray-900 dark:text-white">
-                    Tailles disponibles
-                  </h3>
-                  <div className="mt-4 flex items-center gap-x-3">
-                    {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: string, index: number) => (
-                      <span
-                        key={index}
-                        onClick={() => handleSizeChange(size)}
-                        className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500 rounded-md p-2 min-w-10 text-center ${
-                          selectedSize === size ? 'border-primary-500 text-primary-500' : ''
-                        }`}
-                      >
-                        {size}
-                      </span>
-                    ))}
+              <dl>
+                {product.sizeProduct && (
+                  <div>
+                    <dt className="mt-4 font-medium text-gray-900 dark:text-white">
+                      Tailles disponibles
+                    </dt>
+                    <dd className="mt-4 flex items-center gap-x-3">
+                      {Array.isArray(product.sizeProduct) && product.sizeProduct.length > 0 ? (
+                        product.sizeProduct.map((sizeItem: { name: string, quantity: number }, index: number) => {
+                          const sizeName = sizeItem.name;
+                          const quantity = sizeItem.quantity;
+                          const isOutOfStock = quantity === 0;
+                          return (
+                            <span
+                              key={`${sizeName}-${index}`}
+                              onClick={() => !isOutOfStock && handleSizeChange(sizeName)}
+                              className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500 rounded-md p-2 min-w-10 text-center ${
+                                selectedSize === sizeName && !isOutOfStock ? 'border-primary-500 text-primary-500' : ''
+                              } ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white'}`}
+                              title={isOutOfStock ? 'Hors stock' : `Quantité : ${quantity}`}
+                            >
+                              {sizeName.toUpperCase()}
+                              {!isOutOfStock && (
+                                <span className="block text-xs text-gray-400 mt-1">({quantity})</span>
+                              )}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <span>Aucune taille disponible pour ce produit.</span>
+                      )}
+                    </dd>
                   </div>
-                </div>
-              )}
+                )}
+              </dl>
             </div>
 
             {/* Selector of quantity and add to cart button */}
@@ -280,13 +316,15 @@ export default function ProductPage() {
                 <button
                   onClick={() => handleQuantityChange('decrement')}
                   className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+                  disabled={quantity <= 1}
                 >
                   <Minus className="h-4 w-4" />
                 </button>
                 <span className="text-lg font-medium">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange('increment')}
-                  className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+                  className={`p-2 rounded-md border border-gray-300 hover:bg-gray-50 ${quantity >= selectedSizeStock || !selectedSize ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={quantity >= selectedSizeStock || !selectedSize}
                 >
                   <Plus className="h-4 w-4" />
                 </button>

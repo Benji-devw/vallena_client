@@ -23,7 +23,7 @@ export default function ShopPage() {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const lastProductRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'horizontal'>('grid');
-  const [limit, setLimit] = useState(6);
+  const [limit, setLimit] = useState(12);
   const [currentCategoryName, setCurrentCategoryName] = useState<string | null>(null);
 
   // function to load the categories

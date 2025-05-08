@@ -159,7 +159,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     Tailles disponibles
                   </h3>
                   <div className="mt-4 flex items-center gap-x-3">
-                    {product.sizeProduct.split(',').map((size: string, index: number) => (
+                    {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: string, index: number) => (
                       <span key={index} className="text-lg text-gray-500 border border-gray-300 rounded-md p-2 min-w-10 text-center">
                         {size.trim()}
                       </span>
