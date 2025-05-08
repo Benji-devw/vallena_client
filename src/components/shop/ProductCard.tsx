@@ -50,12 +50,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   const averageRating = calculateAverageRating();
 
   return (
-    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">
+    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-2 h-full">
       <div
         className={`flex h-full ${viewMode === 'horizontal' ? 'flex-row gap-x-6 gap-y-8 min-h-[300px]' : 'flex-col'}`}
       >
         <div
-          className={`relative ${viewMode === 'horizontal' ? 'w-full sm:col-span-4 lg:col-span-5' : 'w-full'} ${viewMode === 'horizontal' ? 'aspect-2/3' : 'aspect-square'} overflow-hidden rounded-lg bg-gray-100`}
+          className={`relative ${viewMode === 'horizontal' ? 'w-full sm:col-span-4 lg:col-span-5' : 'w-full'} ${viewMode === 'horizontal' ? 'aspect-2/3' : 'aspect-square'} overflow-hidden bg-gray-100`}
         >
           <Image
             src={product.imgCollection[0] || '/images/placeholder.png'}

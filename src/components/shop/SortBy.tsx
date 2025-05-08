@@ -104,7 +104,7 @@ export default function SortBy({ onViewModeChange, viewMode }: SortByProps) {
 
   const getButtonClass = (optionKey: string) => {
     const baseClass =
-      'flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border transition-colors duration-200';
+      'flex items-center gap-1 px-3 py-1.5 text-sm rounded-full border transition-colors duration-200';
     return `${baseClass} ${
       sortOptions[optionKey].active
         ? 'bg-primary-100 border-primary-300 text-primary-800 dark:bg-primary-900 dark:border-primary-700 dark:text-primary-200'
@@ -150,23 +150,23 @@ export default function SortBy({ onViewModeChange, viewMode }: SortByProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => onViewModeChange?.('grid')}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-1 rounded-md transition-colors ${
               viewMode === 'grid'
                 ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
                 : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
             }`}
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-6 w-6" />
           </button>
           <button
             onClick={() => onViewModeChange?.('horizontal')}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-1 rounded-md transition-colors ${
               viewMode === 'horizontal'
                 ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
                 : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
             }`}
           >
-            <List className="h-4 w-4" />
+            <List className="h-6 w-6" />
           </button>
         </div>
       </div>

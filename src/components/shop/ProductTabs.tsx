@@ -276,7 +276,7 @@ export default function ProductTabs({ product }: ProductTabsProps) {
 
                 {/* Formulaire d'ajout d'avis */}
                 {showCommentForm && (
-                  <form onSubmit={handleSubmitComment} className="bg-white dark:bg-dark-700/50 p-6 rounded-lg shadow-sm space-y-4">
+                  <form onSubmit={handleSubmitComment} className="bg-white dark:bg-dark-700/50 p-6 rounded-lg shadow-sm space-y-4 max-w-2xl mx-auto">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Note

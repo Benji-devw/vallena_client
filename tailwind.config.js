@@ -8,6 +8,7 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      maxWidth: { '10xl': '1920px' },
       colors: {
         primary: {
           50: '#fdf2f8',
@@ -37,4 +38,4 @@ module.exports = {
     },
   },
   plugins: [],
-} 
+};

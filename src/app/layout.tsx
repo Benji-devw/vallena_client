@@ -44,7 +44,7 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.className} min-h-screen bg-gray-50 dark:bg-dark-900 text-dark-900 dark:text-white transition-colors duration-200`}>
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="max-w-10xl mx-auto px-4 py-8">
         {children}
         </main>
         <ThemeToggle />
