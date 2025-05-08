@@ -26,7 +26,6 @@
     @apply bg-white dark:bg-dark-900 text-dark-900 dark:text-white font-sans;
   }
 
-  /* Ajout pour forcer l'héritage de la police sur les éléments de formulaire */
   input,
   select,
   textarea,

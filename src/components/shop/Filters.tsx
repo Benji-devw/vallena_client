@@ -445,7 +445,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                   : filters.maxPrice || '0'
               }
               onChange={e => handlePriceChange(e.target.value)}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none"
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
             />
           </div>
         </div>
