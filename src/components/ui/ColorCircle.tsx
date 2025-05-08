@@ -8,16 +8,16 @@ interface ColorCircleProps {
 const getColorClass = (color: string): string => {
   const colorMap: { [key: string]: string } = {
     bleu: 'bg-blue-500',
-    rouge: 'bg-red-500',
-    vert: 'bg-green-500',
-    jaune: 'bg-yellow-500',
+    rouge: 'bg-red-600',
+    vert: 'bg-green-600',
+    jaune: 'bg-yellow-600',
     noir: 'bg-black',
     blanc: 'bg-white border border-gray-300',
-    gris: 'bg-gray-500',
-    rose: 'bg-pink-500',
-    orange: 'bg-orange-500',
+    gris: 'bg-gray-600',
+    rose: 'bg-pink-600',
+    orange: 'bg-orange-600',
     marron: 'bg-amber-800',
-    violet: 'bg-purple-500',
+    violet: 'bg-purple-600',
     beige: 'bg-amber-100',
   };
 

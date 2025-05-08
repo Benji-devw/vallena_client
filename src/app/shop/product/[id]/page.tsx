@@ -203,26 +203,6 @@ export default function ProductPage() {
               </div>
             )}
 
-            {product.size_fit && Array.isArray(product.size_fit) && (
-              <div className="prose prose-sm dark:prose-invert">
-                <ul className="list-disc pl-5">
-                  {product.size_fit.map((fit: string, index: number) => (
-                    <li key={index}>{fit}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {product.method && Array.isArray(product.method) && (
-              <div className="prose prose-sm dark:prose-invert">
-                <ul className="list-disc pl-5">
-                  {product.method.map((method: string, index: number) => (
-                    <li key={index}>{method}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
             <div className="mt-6">
               <div className="grid grid-cols-2 text-center dark:border-gray-700 rounded-lg overflow-hidden">
                 {product.matter && (

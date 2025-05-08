@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 
 interface FiltersProps {
   onFilterChange: (isLoading: boolean) => void;
@@ -24,6 +24,7 @@ interface FilterState {
   category: string;
   matter: string;
   color: string;
+  maxPrice: string;
   minPrice: string;
 }
 
@@ -32,8 +33,10 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [isColorExpanded, setIsColorExpanded] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get('category') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
     minPrice: searchParams.get('minPrice') || '',
     matter: searchParams.get('matter') || '',
     color: searchParams.get('color') || '',
@@ -43,6 +46,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   useEffect(() => {
     setFilters({
       category: searchParams.get('category') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
       minPrice: searchParams.get('minPrice') || '',
       matter: searchParams.get('matter') || '',
       color: searchParams.get('color') || '',
@@ -53,7 +57,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   const DEBOUNCE_DELAY = 500;
 
   // check if there are active filters
-  const hasActiveFilters = filters.category || filters.minPrice || filters.matter || filters.color;
+  const hasActiveFilters = filters.category || filters.maxPrice || filters.matter || filters.color;
 
   // effect to update the URL when the filters change (with debounce delay)
   useEffect(() => {
@@ -64,6 +68,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         filters.category !== '' ||
         filters.matter !== '' ||
         filters.color !== '' ||
+        (filters.maxPrice !== '' && filters.maxPrice !== '0') ||
         filters.minPrice !== '';
 
       if (!hasParams) {
@@ -93,12 +98,17 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         } else {
           params.delete('color');
         }
-        if (filters.minPrice !== '') {
+        // Gestion des prix
+        if (filters.minPrice === PRICE_SLIDER_MAX_VALUE) {
           params.set('minPrice', filters.minPrice);
+          params.delete('maxPrice');
+        } else if (filters.maxPrice !== '' && filters.maxPrice !== '0') {
+          params.set('maxPrice', filters.maxPrice);
+          params.delete('minPrice');
         } else {
           params.delete('minPrice');
+          params.delete('maxPrice');
         }
-        params.delete('maxPrice');
       }
       router.replace(`/shop?${params.toString()}`);
     }, DEBOUNCE_DELAY);
@@ -121,6 +131,23 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     });
   };
 
+  const handlePriceChange = (value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (value === '0') {
+        newFilters.minPrice = '';
+        newFilters.maxPrice = '';
+      } else if (value === PRICE_SLIDER_MAX_VALUE) {
+        newFilters.minPrice = PRICE_SLIDER_MAX_VALUE;
+        newFilters.maxPrice = '';
+      } else {
+        newFilters.maxPrice = value;
+        newFilters.minPrice = '';
+      }
+      return newFilters;
+    });
+  };
+
   // Effet pour gérer l'appel à onFilterChange
   useEffect(() => {
     onFilterChange(true);
@@ -136,10 +163,24 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
       category: '',
       matter: '',
       color: '',
+      maxPrice: '',
       minPrice: '',
     });
 
     router.replace('/shop');
+  };
+
+  const toggleDropdown = (dropdownName: string) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const handleOptionSelect = (filterType: keyof FilterState, value: string) => {
+    handleFilterChange(filterType, value);
+    // setOpenDropdown(null);
+  };
+
+  const getSelectedCount = (type: keyof FilterState) => {
+    return filters[type] ? 1 : 0;
   };
 
   return (
@@ -148,10 +189,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
       data-testid="filters-container"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2
-          className="text-lg font-semibold"
-          data-testid="filters-title"
-        >
+        <h2 className="text-lg font-semibold" data-testid="filters-title">
           Filtres
         </h2>
         <div className="flex items-center space-x-2">
@@ -181,164 +219,239 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         className={`space-y-4 text-md ${isOpen ? 'block' : 'hidden lg:block'}`}
         data-testid="filters-content"
       >
-        {/* Catégories */}
-        <div data-testid="category-filter-section">
-          <label className="label" data-testid="category-filter-label">
-            Catégories
-          </label>
-          <select
-            value={filters.category}
-            onChange={e => handleFilterChange('category', e.target.value)}
-            className="input"
-            data-testid="category-filter-select"
+        {/* Catégories Accordion */}
+        <div className="border-t overflow-hidden">
+          <button
+            onClick={() => toggleDropdown('category')}
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
+            aria-expanded={openDropdown === 'category'}
+            aria-controls="category-accordion"
+            role="button"
+            tabIndex={0}
           >
-            <option value="" title="Toutes les catégories">
-              ---
-            </option>
-            {categories.map(category => (
-              <option
-                key={category.id}
-                value={category.id}
-                data-testid={`category-option-${category.id}`}
-              >
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Matter */}
-        <div data-testid="matter-filter-section">
-          <label className="label" data-testid="matter-filter-label">
-            Matière
-          </label>
-          <select
-            value={filters.matter}
-            onChange={e => handleFilterChange('matter', e.target.value)}
-            className="input"
-            data-testid="matter-filter-select"
-          >
-            <option value="" title="Toutes les matières">
-              ---
-            </option>
-            {matters.map(matter => (
-              <option key={matter.id} value={matter.id} data-testid={`matter-option-${matter.id}`}>
-                {matter.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Color */}
-        <div data-testid="color-filter-section">
-          <div className="flex items-center justify-between mb-1">
-            <label
-              className="block font-medium text-gray-700 dark:text-gray-300"
-              data-testid="color-filter-label"
-            >
-              Couleur
-            </label>
-            <button
-              onClick={() => setIsColorExpanded(!isColorExpanded)}
-              className=" text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-              data-testid="toggle-color-expand-button"
-            >
-              {isColorExpanded ? 'Réduire' : 'Voir plus'}
-            </button>
-          </div>
-          <select
-            value={filters.color}
-            onChange={e => handleFilterChange('color', e.target.value)}
-            className="input"
-            data-testid="color-filter-select"
-          >
-            <option value="" title="Toutes les couleurs">
-              ---
-            </option>
-            {colors.map(color => (
-              <option key={color.id} value={color.id} data-testid={`color-option-${color.id}`}>
-                {color.name}
-              </option>
-            ))}
-          </select>
+            <div className="flex items-center gap-2">
+              <span>Catégories</span>
+              {getSelectedCount('category') > 0 && (
+                <span className="text-sm text-gray-500">({getSelectedCount('category')})</span>
+              )}
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'category' ? 'rotate-180' : ''}`}
+            />
+          </button>
           <div
-            className={`flex flex-wrap gap-2 mt-2 ${isColorExpanded ? 'block' : 'hidden'}`}
-            data-testid="color-chips-container"
+            id="category-accordion"
+            className={`grid transition-all duration-200 ease-in-out ${
+              openDropdown === 'category'
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'grid-rows-[0fr] opacity-0'
+            }`}
           >
-            {colors.map(color => (
-              <button
-                key={color.id}
-                onClick={() => handleFilterChange('color', color.id)}
-                className={`flex flex-col items-center gap-2 px-3 py-1 rounded-sm  ${
-                  filters.color === color.id
-                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                    : ' text-gray-700 dark:bg-gray-800 dark:text-gray-300'
-                }`}
-                data-testid={`color-chip-${color.id}`}
-              >
-                <span
-                  className={`w-7 h-7 rounded-full ${
-                    color.name === 'Bleu'
-                      ? 'bg-blue-500'
-                      : color.name === 'Rouge'
-                        ? 'bg-red-500'
-                        : color.name === 'Vert'
-                          ? 'bg-green-500'
-                          : color.name === 'Jaune'
-                            ? 'bg-yellow-500'
-                            : color.name === 'Noir'
-                              ? 'bg-black'
-                              : color.name === 'Blanc'
-                                ? 'bg-white border border-gray-300'
-                                : color.name === 'Gris'
-                                  ? 'bg-gray-500'
-                                  : color.name === 'Rose'
-                                    ? 'bg-pink-500'
-                                    : color.name === 'Orange'
-                                      ? 'bg-orange-500'
-                                      : color.name === 'Marron'
-                                        ? 'bg-amber-800'
-                                        : color.name === 'Violet'
-                                          ? 'bg-purple-500'
-                                          : color.name === 'Beige'
-                                            ? 'bg-amber-100'
-                                            : 'bg-gray-200'
+            <div className="overflow-hidden">
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => handleOptionSelect('category', '')}
+                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                    filters.category === '' ? 'bg-primary-50 text-primary-700' : ''
                   }`}
-                  data-testid={`color-chip-swatch-${color.id}`}
-                />
-                {color.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Price */}
-        <div data-testid="price-filter-section">
-          <label className="label" data-testid="price-filter-label">
-            Prix
-          </label>
-          <div className="space-y-4">
-            {/* Slider Min/Unique */}
-            <div className="relative" data-testid="price-slider-container">
-              <input
-                type="range"
-                min="0"
-                max={PRICE_SLIDER_MAX_VALUE}
-                step="10"
-                value={filters.minPrice || '0'}
-                onChange={e => handleFilterChange('minPrice', e.target.value)}
-                className="range"
-                data-testid="price-slider"
-              />
-              <div
-                className="text-md text-gray-500 dark:text-gray-400 mt-1"
-                data-testid="price-value-display"
-              >
-                {filters.minPrice && filters.minPrice === PRICE_SLIDER_MAX_VALUE
-                  ? `${PRICE_SLIDER_MAX_VALUE}€ et plus`
-                  : `${filters.minPrice || '0'}€`}
+                >
+                  <span>Toutes les catégories</span>
+                  {filters.category === '' && (
+                    <Check className="h-4 w-4 text-primary-500" />
+                  )}
+                </button>
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleOptionSelect('category', category.id)}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                      filters.category === category.id ? 'bg-primary-50 text-primary-700' : ''
+                    }`}
+                  >
+                    <span>{category.name}</span>
+                    {filters.category === category.id && (
+                      <Check className="h-4 w-4 text-primary-500" />
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Matter Accordion */}
+        <div className="border-t overflow-hidden">
+          <button
+            onClick={() => toggleDropdown('matter')}
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
+            aria-expanded={openDropdown === 'matter'}
+            aria-controls="matter-accordion"
+            role="button"
+            tabIndex={0}
+          >
+            <div className="flex items-center gap-2">
+              <span>Matière</span>
+              {getSelectedCount('matter') > 0 && (
+                <span className="text-sm text-gray-500">({getSelectedCount('matter')})</span>
+              )}
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'matter' ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div
+            id="matter-accordion"
+            className={`grid transition-all duration-200 ease-in-out ${
+              openDropdown === 'matter'
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'grid-rows-[0fr] opacity-0'
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => handleOptionSelect('matter', '')}
+                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                    filters.matter === '' ? 'bg-primary-50 text-primary-700' : ''
+                  }`}
+                >
+                  <span>Toutes les matières</span>
+                  {filters.matter === '' && (
+                    <Check className="h-4 w-4 text-primary-500" />
+                  )}
+                </button>
+                {matters.map(matter => (
+                  <button
+                    key={matter.id}
+                    onClick={() => handleOptionSelect('matter', matter.id)}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                      filters.matter === matter.id ? 'bg-primary-50 text-primary-700' : ''
+                    }`}
+                  >
+                    <span>{matter.name}</span>
+                    {filters.matter === matter.id && (
+                      <Check className="h-4 w-4 text-primary-500" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Color Accordion */}
+        <div className="border-t overflow-hidden">
+          <button
+            onClick={() => toggleDropdown('color')}
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
+            aria-expanded={openDropdown === 'color'}
+            aria-controls="color-accordion"
+            role="button"
+            tabIndex={0}
+          >
+            <div className="flex items-center gap-2">
+              <span>Couleur</span>
+              {getSelectedCount('color') > 0 && (
+                <span className="text-sm text-gray-500">({getSelectedCount('color')})</span>
+              )}
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'color' ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div
+            id="color-accordion"
+            className={`grid transition-all duration-200 ease-in-out ${
+              openDropdown === 'color' ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => handleOptionSelect('color', '')}
+                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                    filters.color === '' ? 'bg-primary-50 text-primary-700' : ''
+                  }`}
+                >
+                  <span>Toutes les couleurs</span>
+                  {filters.color === '' && (
+                    <Check className="h-4 w-4 text-primary-500" />
+                  )}
+                </button>
+                {colors.map(color => (
+                  <button
+                    key={color.id}
+                    onClick={() => handleOptionSelect('color', color.id)}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-dark-700 rounded-md flex items-center justify-between ${
+                      filters.color === color.id ? 'bg-primary-50 text-primary-700' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-4 h-4 rounded-full ${
+                          color.name === 'Bleu'
+                            ? 'bg-blue-500'
+                            : color.name === 'Rouge'
+                              ? 'bg-red-500'
+                              : color.name === 'Vert'
+                                ? 'bg-green-500'
+                                : color.name === 'Jaune'
+                                  ? 'bg-yellow-500'
+                                  : color.name === 'Noir'
+                                    ? 'bg-black'
+                                    : color.name === 'Blanc'
+                                      ? 'bg-white border border-gray-300'
+                                      : color.name === 'Gris'
+                                        ? 'bg-gray-500'
+                                        : color.name === 'Rose'
+                                          ? 'bg-pink-500'
+                                          : color.name === 'Orange'
+                                            ? 'bg-orange-500'
+                                            : color.name === 'Marron'
+                                              ? 'bg-amber-800'
+                                              : color.name === 'Violet'
+                                                ? 'bg-purple-500'
+                                                : color.name === 'Beige'
+                                                  ? 'bg-amber-100'
+                                                  : 'bg-gray-200'
+                        }`}
+                      />
+                      <span>{color.name}</span>
+                    </div>
+                    {filters.color === color.id && (
+                      <Check className="h-4 w-4 text-primary-500" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Price Slider */}
+        <div className="border-t overflow-hidden">
+          <div className="flex items-center justify-between p-3">
+            <span>Prix</span>
+            {filters.minPrice === PRICE_SLIDER_MAX_VALUE ? (
+              <span className="text-sm text-gray-500">
+                {`${PRICE_SLIDER_MAX_VALUE}€ et plus`}
+              </span>
+            ) : filters.maxPrice && filters.maxPrice !== '0' ? (
+              <span className="text-sm text-gray-500">
+                {`${filters.maxPrice}€ et moins`}
+              </span>
+            ) : null}
+          </div>
+          <div className="px-3 py-2">
+            <input
+              type="range"
+              min="0"
+              max={PRICE_SLIDER_MAX_VALUE}
+              step="10"
+              value={filters.minPrice === PRICE_SLIDER_MAX_VALUE ? PRICE_SLIDER_MAX_VALUE : filters.maxPrice || '0'}
+              onChange={e => handlePriceChange(e.target.value)}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none"
+            />
           </div>
         </div>
       </div>

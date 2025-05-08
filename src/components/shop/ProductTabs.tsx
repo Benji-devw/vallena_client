@@ -5,6 +5,11 @@ import { commentsService, Comment } from '@/services/api/commentService';
 import CommentCard from './CommentCard';
 import SliderProduct from './SliderProduct';
 
+interface SizeProduct {
+  name: string;
+  quantity: number;
+}
+
 interface ProductTabsProps {
   product: Product;
 }
@@ -91,7 +96,13 @@ export default function ProductTabs({ product }: ProductTabsProps) {
     { id: 'category', label: 'Catégories', value: product.categoryProduct },
     { id: 'matter', label: 'Matière', value: product.matter },
     { id: 'color', label: 'Coloris', value: product.color },
-    { id: 'size', label: 'Taille', value: product.sizeProduct },
+    { 
+      id: 'size', 
+      label: 'Tailles disponibles', 
+      value: Array.isArray(product.sizeProduct) 
+        ? product.sizeProduct.join(', ')
+        : 'Non disponible'
+    },
     { id: 'weight', label: 'Poids', value: product.weightProduct },
     { id: 'composition', label: 'Composition', value: product.composition },
     { id: 'fabrication', label: 'Fabrication', value: product.fabrication },
