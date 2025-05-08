@@ -7,10 +7,13 @@ import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 import ProductSkeleton from '@/components/shop/ProductSkeleton';
+import Breadcrumbs from '@/components/shop/Breadcrumbs';
+// import Link from 'next/link';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [totalProducts, setTotalProducts] = useState<number>(0);
   const [allCategories, setAllCategories] = useState<{ id: string; name: string }[]>([]);
   const [allMatter, setAllMatter] = useState<{ id: string; name: string }[]>([]);
   const [allColors, setAllColors] = useState<{ id: string; name: string }[]>([]);
@@ -21,6 +24,7 @@ export default function ShopPage() {
   const lastProductRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'horizontal'>('grid');
   const [limit, setLimit] = useState(6);
+  const [currentCategoryName, setCurrentCategoryName] = useState<string | null>(null);
 
   // function to load the categories
   useEffect(() => {
@@ -58,13 +62,12 @@ export default function ShopPage() {
         };
 
         const data = await productService.getAllProducts(filters);
-        const productsArray = Array.isArray(data)
-          ? data
-          : Array.isArray(data.products)
-            ? data.products
-            : [];
+        const productsArray = Array.isArray(data.products)
+          ? data.products
+          : [];
 
         setFilteredProducts(productsArray);
+        setTotalProducts(data.total);
         setError(null);
 
         // Attendre au moins 1 seconde avant de masquer le skeleton
@@ -77,6 +80,7 @@ export default function ShopPage() {
         console.error('Erreur lors du chargement des produits:', err);
         setError('Erreur lors du chargement des produits');
         setFilteredProducts([]);
+        setTotalProducts(0);
         setInitialLoadComplete(true);
       } finally {
         setLoading(false);
@@ -85,6 +89,17 @@ export default function ShopPage() {
     };
     loadProducts();
   }, [searchParams, limit]);
+
+  // Nouveau useEffect pour mettre à jour le nom de la catégorie pour le fil d'Ariane
+  useEffect(() => {
+    const categoryId = searchParams.get('category');
+    if (categoryId && allCategories.length > 0) {
+      const selectedCategory = allCategories.find(cat => cat.id === categoryId);
+      setCurrentCategoryName(selectedCategory ? selectedCategory.name : null);
+    } else {
+      setCurrentCategoryName(null);
+    }
+  }, [searchParams, allCategories]);
 
   // handler for filter change
   const handleFilterChange = useCallback((isLoading: boolean) => {
@@ -98,13 +113,22 @@ export default function ShopPage() {
   // console.log("🔍 comments", comments);
 
   return (
-    <div className="min-h-screen mx-auto bg-gray-50 dark:bg-dark-900" data-testid="shop-page-container">
+    <div
+      className="min-h-screen mx-auto bg-gray-50 dark:bg-dark-900"
+      data-testid="shop-page-container"
+    >
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1
-          className="text-3xl font-bold text-gray-900 dark:text-white mb-8"
-          data-testid="shop-title"
-        >
-          Shop
+        {/* Breadcrumbs */}
+        <Breadcrumbs currentCategoryName={currentCategoryName} />
+
+        <h1 className="text-2xl text-gray-900 dark:text-white mb-8" data-testid="shop-title">
+          {currentCategoryName ? (
+            <>
+              Nombre d'articles pour {currentCategoryName} ({totalProducts})
+            </>
+          ) : (
+            <>Nombre d'articles ({totalProducts})</>
+          )}
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -122,10 +146,7 @@ export default function ShopPage() {
           <div className="flex-1" data-testid="shop-products-container">
             {/* sort and filters */}
             <div className="mb-4" data-testid="shop-sort-container">
-              <SortBy
-                onViewModeChange={setViewMode}
-                viewMode={viewMode}
-              />
+              <SortBy onViewModeChange={setViewMode} viewMode={viewMode} />
             </div>
 
             {/* initial loading display */}

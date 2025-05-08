@@ -26,9 +26,8 @@ export default function ProductPage() {
         const data = await productService.getProductById(id as string);
         setProduct(data.data);
         // Sélectionner la première couleur par défaut
-        if (data.data.color) {
-          const firstColor = data.data.color.split(',')[0].trim();
-          setSelectedColor(firstColor);
+        if (data.data.color && Array.isArray(data.data.color)) {
+          setSelectedColor(data.data.color[0]);
         }
         setError(null);
       } catch (err) {
@@ -183,6 +182,26 @@ export default function ProductPage() {
               </div>
             )}
 
+            {product.size_fit && Array.isArray(product.size_fit) && (
+              <div className="prose prose-sm dark:prose-invert">
+                <ul className="list-disc pl-5">
+                  {product.size_fit.map((fit: string, index: number) => (
+                    <li key={index}>{fit}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {product.method && Array.isArray(product.method) && (
+              <div className="prose prose-sm dark:prose-invert">
+                <ul className="list-disc pl-5">
+                  {product.method.map((method: string, index: number) => (
+                    <li key={index}>{method}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="mt-6">
               <div className="grid grid-cols-2 text-center dark:border-gray-700 rounded-lg overflow-hidden">
                 {product.matter && (
@@ -221,12 +240,12 @@ export default function ProductPage() {
                       Couleurs disponibles
                     </dt>
                     <dd className="mt-2 flex flex-wrap gap-2">
-                      {product.color.split(',').map((color: string, index: number) => (
+                      {Array.isArray(product.color) && product.color.map((color: string, index: number) => (
                         <ColorCircle
                           key={index}
-                          color={color.trim()}
-                          isSelected={selectedColor === color.trim()}
-                          onClick={() => handleColorChange(color.trim())}
+                          color={color}
+                          isSelected={selectedColor === color}
+                          onClick={() => handleColorChange(color)}
                         />
                       ))}
                     </dd>
@@ -239,15 +258,15 @@ export default function ProductPage() {
                     Tailles disponibles
                   </h3>
                   <div className="mt-4 flex items-center gap-x-3">
-                    {product.sizeProduct.split(',').map((size: string, index: number) => (
+                    {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: string, index: number) => (
                       <span
                         key={index}
-                        onClick={() => handleSizeChange(size.trim())}
-                        className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500   rounded-md p-2 min-w-10 text-center ${
-                          selectedSize === size.trim() ? 'border-primary-500 text-primary-500' : ''
+                        onClick={() => handleSizeChange(size)}
+                        className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500 rounded-md p-2 min-w-10 text-center ${
+                          selectedSize === size ? 'border-primary-500 text-primary-500' : ''
                         }`}
                       >
-                        {size.trim()}
+                        {size}
                       </span>
                     ))}
                   </div>

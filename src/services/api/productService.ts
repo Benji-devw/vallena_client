@@ -83,7 +83,10 @@ export const productService = {
       if (filters.limit) params.append('limit', filters.limit.toString());
 
       const response = await axios.get(`${API_URL}/shop?${params.toString()}`);
-      return response.data;
+      return {
+        products: response.data.products || response.data,
+        total: response.data.total || (Array.isArray(response.data) ? response.data.length : 0)
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération des produits:', error);
       throw error;

@@ -39,6 +39,16 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     color: searchParams.get('color') || '',
   });
 
+  // Effet pour réinitialiser les filtres quand l'URL change
+  useEffect(() => {
+    setFilters({
+      category: searchParams.get('category') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      matter: searchParams.get('matter') || '',
+      color: searchParams.get('color') || '',
+    });
+  }, [searchParams]);
+
   const PRICE_SLIDER_MAX_VALUE = '80';
   const DEBOUNCE_DELAY = 500;
 

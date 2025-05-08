@@ -141,8 +141,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     Couleurs disponibles
                   </h3>
                   <div className="mt-4 flex items-center gap-x-3">
-                    {product.color.split(',').map((color: string, index: number) => (
-                      <ColorCircle key={index} color={color.trim()} size="md" />
+                    {Array.isArray(product.color) && product.color.map((color: string, index: number) => (
+                      <ColorCircle
+                        key={index}
+                        color={color}
+                        isSelected={false}
+                      />
                     ))}
                   </div>
                 </div>

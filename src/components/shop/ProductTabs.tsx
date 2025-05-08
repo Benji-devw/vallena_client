@@ -172,12 +172,9 @@ export default function ProductTabs({ product }: ProductTabsProps) {
                       }`}>
                         <div className="flex items-start space-x-3">
                           <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
-                            {product.size_fit
-                              .split('-')
-                              .filter(size => size.trim() !== '')
-                              .map((size: string, index: number) => (
-                                <li key={index}>{size.trim()}</li>
-                              ))}
+                            {Array.isArray(product.size_fit) && product.size_fit.map((fit: string, index: number) => (
+                              <li key={index}>{fit}</li>
+                            ))}
                           </ul>
                         </div>
                       </div>
@@ -203,11 +200,9 @@ export default function ProductTabs({ product }: ProductTabsProps) {
                       }`}>
                         <div className="flex items-start space-x-3">
                           <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
-                            {product.method.split('-')
-                              .filter(method => method.trim() !== '')
-                              .map((method: string, index: number) => (
-                                <li key={index}>{method.trim()}</li>
-                              ))}
+                            {Array.isArray(product.method) && product.method.map((method: string, index: number) => (
+                              <li key={index}>{method}</li>
+                            ))}
                           </ul>
                         </div>
                       </div>
