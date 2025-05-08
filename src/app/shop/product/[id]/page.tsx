@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { productService } from '@/services/api/productService';
+import { Product, productService } from '@/services/api/productService';
 import { Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
 import ProductTabs from '@/components/shop/ProductTabs';
 import ColorCircle from '@/components/ui/ColorCircle';
+import SliderProduct from '@/components/shop/SliderProduct';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
 
   // Obtenir le stock pour la taille sélectionnée
   const selectedSizeStock = selectedSize && product && Array.isArray(product.sizeProduct)
@@ -53,22 +55,6 @@ export default function ProductPage() {
 
     fetchProduct();
   }, [id]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
-
-  if (error || !product) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-500">{error || 'Produit non trouvé'}</p>
-      </div>
-    );
-  }
 
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
@@ -139,7 +125,42 @@ export default function ProductPage() {
     }
   };
 
-  // console.log("🔴 product", product);
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      if (!product?._id || !product?.categoryProduct) {
+        setSimilarProducts([]);
+        return;
+      }
+      try {
+        const fetchedProducts = await productService.getSimilarProducts(
+          product._id,
+          product.categoryProduct,
+          8
+        );
+        setSimilarProducts(fetchedProducts);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des produits similaires:', error);
+        setSimilarProducts([]);
+      }
+    };
+    fetchSimilarProducts();
+  }, [product?._id, product?.categoryProduct]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-500">{error || 'Produit non trouvé'}</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -275,6 +296,9 @@ export default function ProductPage() {
                               title={isOutOfStock ? 'Hors stock' : `Quantité : ${quantity}`}
                             >
                               {sizeName.toUpperCase()}
+                              {sizeItem.quantity === 0 && (
+                                <span className="block text-xs text-gray-400 mt-1">({sizeItem.quantity})</span>
+                              )}
                               {!isOutOfStock && (
                                 <span className="block text-xs text-gray-400 mt-1">({quantity})</span>
                               )}
@@ -333,6 +357,13 @@ export default function ProductPage() {
 
       {/* Product description tabs */}
       <ProductTabs product={product} />
+
+      {/* Similar products */}
+      {similarProducts.length > 0 && (
+        <div className="mt-16 mb-8">
+          <SliderProduct products={similarProducts} title="Dans la même catégorie" />
+        </div>
+      )}
     </>
   );
 }

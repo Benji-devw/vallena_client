@@ -3,7 +3,6 @@ import { Product, productService } from '@/services/api/productService';
 import { FileText, Info, Star, ChevronDown } from 'lucide-react';
 import { commentsService, Comment } from '@/services/api/commentService';
 import CommentCard from './CommentCard';
-import SliderProduct from './SliderProduct';
 
 interface SizeProduct {
   name: string;
@@ -17,7 +16,6 @@ interface ProductTabsProps {
 export default function ProductTabs({ product }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState('description');
   const [comments, setComments] = useState<Comment[]>([]);
-  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [newComment, setNewComment] = useState({
@@ -57,27 +55,6 @@ export default function ProductTabs({ product }: ProductTabsProps) {
     };
     fetchComments();
   }, [product?._id]);
-
-  useEffect(() => {
-    const fetchSimilarProducts = async () => {
-      if (!product?._id || !product?.categoryProduct) {
-        setSimilarProducts([]);
-        return;
-      }
-      try {
-        const fetchedProducts = await productService.getSimilarProducts(
-          product._id,
-          product.categoryProduct,
-          8
-        );
-        setSimilarProducts(fetchedProducts);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des produits similaires:', error);
-        setSimilarProducts([]);
-      }
-    };
-    fetchSimilarProducts();
-  }, [product?._id, product?.categoryProduct]);
 
   const tabs = [
     { id: 'description', label: 'Description', icon: FileText },
@@ -367,11 +344,7 @@ export default function ProductTabs({ product }: ProductTabsProps) {
         </div>
       </div>
 
-      {similarProducts.length > 0 && (
-        <div className="mt-16 mb-8">
-          <SliderProduct products={similarProducts} title="Dans la même catégorie" />
-        </div>
-      )}
+
     </div>
   );
 } 

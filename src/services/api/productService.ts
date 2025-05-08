@@ -11,7 +11,7 @@ export interface Product {
   size_fit?: string;
   method?: string;
   priceProduct: number;
-  sizeProduct?: Array<string>;
+  sizeProduct?: Array<{ name: string; quantity: number }>;
   weightProduct?: string;
   quantityProduct?: number;
   stockProduct?: boolean;

@@ -44,7 +44,7 @@ export default function ColorCircle({ color, isSelected = false, onClick, size =
         dark:hover:ring-2 
         dark:hover:ring-primary-600
         ${getColorClass(color)}
-        ${isSelected ? 'border-4 dark:border-gray-900 ring-2 ring-primary-600' : ''}
+        ${isSelected ? 'border-4 dark:border-gray-900 ring-1 ring-primary-600' : ''}
       `}
       title={color}
       onClick={onClick}

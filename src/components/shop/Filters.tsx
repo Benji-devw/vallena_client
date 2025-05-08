@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 
@@ -31,9 +31,11 @@ interface FilterState {
 export default function Filters({ onFilterChange, categories, matters, colors }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isColorExpanded, setIsColorExpanded] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openDropdowns, setOpenDropdowns] = useState({
+    category: false,
+    matter: false,
+    color: false,
+  });
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get('category') || '',
     maxPrice: searchParams.get('maxPrice') || '',
@@ -41,6 +43,8 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     matter: searchParams.get('matter') || '',
     color: searchParams.get('color') || '',
   });
+  const PRICE_SLIDER_MAX_VALUE = '80';
+  const DEBOUNCE_DELAY = 500;
 
   // Effet pour réinitialiser les filtres quand l'URL change
   useEffect(() => {
@@ -53,11 +57,71 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     });
   }, [searchParams]);
 
-  const PRICE_SLIDER_MAX_VALUE = '80';
-  const DEBOUNCE_DELAY = 500;
-
   // check if there are active filters
   const hasActiveFilters = filters.category || filters.maxPrice || filters.matter || filters.color;
+
+  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      // Si on clique sur la même valeur, on la désélectionne
+      if (prev[filterType] === value) {
+        newFilters[filterType] = '';
+      } else {
+        newFilters[filterType] = value;
+      }
+      return newFilters;
+    });
+  };
+
+  const handlePriceChange = (value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (value === '0') {
+        newFilters.minPrice = '';
+        newFilters.maxPrice = '';
+      } else if (value === PRICE_SLIDER_MAX_VALUE) {
+        newFilters.minPrice = PRICE_SLIDER_MAX_VALUE;
+        newFilters.maxPrice = '';
+      } else {
+        newFilters.maxPrice = value;
+        newFilters.minPrice = '';
+      }
+      return newFilters;
+    });
+  };
+
+  const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!hasActiveFilters) return;
+
+    onFilterChange(true);
+
+    setFilters({
+      category: '',
+      matter: '',
+      color: '',
+      maxPrice: '',
+      minPrice: '',
+    });
+
+    router.replace('/shop');
+  };
+
+  const toggleDropdown = (dropdownName: keyof typeof openDropdowns) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [dropdownName]: !prev[dropdownName],
+    }));
+  };
+
+  const handleOptionSelect = (filterType: keyof FilterState, value: string) => {
+    handleFilterChange(filterType, value);
+    // setOpenDropdown(null);
+  };
+
+  const getSelectedCount = (type: keyof FilterState) => {
+    return filters[type] ? 1 : 0;
+  };
 
   // effect to update the URL when the filters change (with debounce delay)
   useEffect(() => {
@@ -118,76 +182,14 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     };
   }, [filters, router, searchParams]);
 
-  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
-    setFilters(prev => {
-      const newFilters = { ...prev };
-      // Si on clique sur la même couleur, on la désélectionne
-      if (filterType === 'color' && prev[filterType] === value) {
-        newFilters[filterType] = '';
-      } else {
-        newFilters[filterType] = value;
-      }
-      return newFilters;
-    });
-  };
-
-  const handlePriceChange = (value: string) => {
-    setFilters(prev => {
-      const newFilters = { ...prev };
-      if (value === '0') {
-        newFilters.minPrice = '';
-        newFilters.maxPrice = '';
-      } else if (value === PRICE_SLIDER_MAX_VALUE) {
-        newFilters.minPrice = PRICE_SLIDER_MAX_VALUE;
-        newFilters.maxPrice = '';
-      } else {
-        newFilters.maxPrice = value;
-        newFilters.minPrice = '';
-      }
-      return newFilters;
-    });
-  };
-
-  // Effet pour gérer l'appel à onFilterChange
+  // Effet for loading the products
   useEffect(() => {
     onFilterChange(true);
   }, [filters, onFilterChange]);
 
-  const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!hasActiveFilters) return;
-
-    onFilterChange(true);
-
-    setFilters({
-      category: '',
-      matter: '',
-      color: '',
-      maxPrice: '',
-      minPrice: '',
-    });
-
-    router.replace('/shop');
-  };
-
-  const toggleDropdown = (dropdownName: string) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-  };
-
-  const handleOptionSelect = (filterType: keyof FilterState, value: string) => {
-    handleFilterChange(filterType, value);
-    // setOpenDropdown(null);
-  };
-
-  const getSelectedCount = (type: keyof FilterState) => {
-    return filters[type] ? 1 : 0;
-  };
-
   return (
-    <div
-      className="sticky top-20 bg-white dark:bg-dark-800 rounded-lg shadow-sm p-4"
-      data-testid="filters-container"
-    >
+    <div className="max-h-[calc(100vh-10rem)] sticky top-20 p-4" data-testid="filters-container">
+      {/* Filters Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold" data-testid="filters-title">
           Filtres
@@ -206,7 +208,13 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             Réinitialiser
           </button>
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() =>
+              setOpenDropdowns({
+                category: !openDropdowns.category,
+                matter: false,
+                color: false,
+              })
+            }
             className="lg:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700"
             data-testid="toggle-filters-button"
           >
@@ -215,8 +223,9 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         </div>
       </div>
 
+      {/* Filters Content */}
       <div
-        className={`space-y-4 text-md ${isOpen ? 'block' : 'hidden lg:block'}`}
+        className={`space-y-4 text-md overflow-y-auto max-h-[calc(100vh-15rem)] ${openDropdowns.category ? 'block' : 'hidden lg:block'}`}
         data-testid="filters-content"
       >
         {/* Catégories Accordion */}
@@ -224,27 +233,25 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           <button
             onClick={() => toggleDropdown('category')}
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
-            aria-expanded={openDropdown === 'category'}
+            aria-expanded={openDropdowns.category}
             aria-controls="category-accordion"
             role="button"
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span>Catégories</span>
+              <span className="font-semibold">Catégories</span>
               {getSelectedCount('category') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('category')})</span>
               )}
             </div>
             <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'category' ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdowns.category ? 'rotate-180' : ''}`}
             />
           </button>
           <div
             id="category-accordion"
             className={`grid transition-all duration-200 ease-in-out ${
-              openDropdown === 'category'
-                ? 'grid-rows-[1fr] opacity-100'
-                : 'grid-rows-[0fr] opacity-0'
+              openDropdowns.category ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
             }`}
           >
             <div className="overflow-hidden">
@@ -256,9 +263,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                   }`}
                 >
                   <span>Toutes les catégories</span>
-                  {filters.category === '' && (
-                    <Check className="h-4 w-4 text-primary-500" />
-                  )}
+                  {filters.category === '' && <Check className="h-4 w-4 text-primary-500" />}
                 </button>
                 {categories.map(category => (
                   <button
@@ -284,27 +289,25 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           <button
             onClick={() => toggleDropdown('matter')}
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
-            aria-expanded={openDropdown === 'matter'}
+            aria-expanded={openDropdowns.matter}
             aria-controls="matter-accordion"
             role="button"
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span>Matière</span>
+              <span className="font-semibold">Matière</span>
               {getSelectedCount('matter') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('matter')})</span>
               )}
             </div>
             <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'matter' ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdowns.matter ? 'rotate-180' : ''}`}
             />
           </button>
           <div
             id="matter-accordion"
             className={`grid transition-all duration-200 ease-in-out ${
-              openDropdown === 'matter'
-                ? 'grid-rows-[1fr] opacity-100'
-                : 'grid-rows-[0fr] opacity-0'
+              openDropdowns.matter ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
             }`}
           >
             <div className="overflow-hidden">
@@ -316,9 +319,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                   }`}
                 >
                   <span>Toutes les matières</span>
-                  {filters.matter === '' && (
-                    <Check className="h-4 w-4 text-primary-500" />
-                  )}
+                  {filters.matter === '' && <Check className="h-4 w-4 text-primary-500" />}
                 </button>
                 {matters.map(matter => (
                   <button
@@ -329,9 +330,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                     }`}
                   >
                     <span>{matter.name}</span>
-                    {filters.matter === matter.id && (
-                      <Check className="h-4 w-4 text-primary-500" />
-                    )}
+                    {filters.matter === matter.id && <Check className="h-4 w-4 text-primary-500" />}
                   </button>
                 ))}
               </div>
@@ -344,25 +343,25 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           <button
             onClick={() => toggleDropdown('color')}
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-dark-700"
-            aria-expanded={openDropdown === 'color'}
+            aria-expanded={openDropdowns.color}
             aria-controls="color-accordion"
             role="button"
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span>Couleur</span>
+              <span className="font-semibold">Couleur</span>
               {getSelectedCount('color') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('color')})</span>
               )}
             </div>
             <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${openDropdown === 'color' ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 transition-transform duration-200 ${openDropdowns.color ? 'rotate-180' : ''}`}
             />
           </button>
           <div
             id="color-accordion"
             className={`grid transition-all duration-200 ease-in-out ${
-              openDropdown === 'color' ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+              openDropdowns.color ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
             }`}
           >
             <div className="overflow-hidden">
@@ -374,9 +373,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                   }`}
                 >
                   <span>Toutes les couleurs</span>
-                  {filters.color === '' && (
-                    <Check className="h-4 w-4 text-primary-500" />
-                  )}
+                  {filters.color === '' && <Check className="h-4 w-4 text-primary-500" />}
                 </button>
                 {colors.map(color => (
                   <button
@@ -418,9 +415,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                       />
                       <span>{color.name}</span>
                     </div>
-                    {filters.color === color.id && (
-                      <Check className="h-4 w-4 text-primary-500" />
-                    )}
+                    {filters.color === color.id && <Check className="h-4 w-4 text-primary-500" />}
                   </button>
                 ))}
               </div>
@@ -431,15 +426,11 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         {/* Price Slider */}
         <div className="border-t overflow-hidden">
           <div className="flex items-center justify-between p-3">
-            <span>Prix</span>
+            <span className="font-semibold">Prix</span>
             {filters.minPrice === PRICE_SLIDER_MAX_VALUE ? (
-              <span className="text-sm text-gray-500">
-                {`${PRICE_SLIDER_MAX_VALUE}€ et plus`}
-              </span>
+              <span className="text-sm text-gray-500">{`${PRICE_SLIDER_MAX_VALUE}€ et plus`}</span>
             ) : filters.maxPrice && filters.maxPrice !== '0' ? (
-              <span className="text-sm text-gray-500">
-                {`${filters.maxPrice}€ et moins`}
-              </span>
+              <span className="text-sm text-gray-500">{`${filters.maxPrice}€ et moins`}</span>
             ) : null}
           </div>
           <div className="px-3 py-2">
@@ -448,7 +439,11 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
               min="0"
               max={PRICE_SLIDER_MAX_VALUE}
               step="10"
-              value={filters.minPrice === PRICE_SLIDER_MAX_VALUE ? PRICE_SLIDER_MAX_VALUE : filters.maxPrice || '0'}
+              value={
+                filters.minPrice === PRICE_SLIDER_MAX_VALUE
+                  ? PRICE_SLIDER_MAX_VALUE
+                  : filters.maxPrice || '0'
+              }
               onChange={e => handlePriceChange(e.target.value)}
               className="w-full h-2 bg-gray-200 rounded-full appearance-none"
             />

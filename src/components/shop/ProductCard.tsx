@@ -26,6 +26,11 @@ interface Comment {
   status: boolean;
 }
 
+interface SizeProduct {
+  name: string;
+  quantity: number;
+}
+
 export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
   const [notes, setNotes] = useState<number[]>([]);
 
@@ -159,9 +164,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     Tailles disponibles
                   </h3>
                   <div className="mt-4 flex items-center gap-x-3">
-                    {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: string, index: number) => (
-                      <span key={index} className="text-lg text-gray-500 border border-gray-300 rounded-md p-2 min-w-10 text-center">
-                        {size.trim()}
+                    {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: SizeProduct, index: number) => (
+                      <span key={index} className={`text-lg text-gray-500 border border-gray-300 rounded-md p-2 min-w-10 text-center ${
+                        size.quantity === 0 ? 'opacity-50  bg-gray-100' : 'bg-white'
+                      }`}>
+                        {size.name}
+                        <span className="block text-xs text-gray-400 mt-1">({size.quantity})</span>
                       </span>
                     ))}
                   </div>
