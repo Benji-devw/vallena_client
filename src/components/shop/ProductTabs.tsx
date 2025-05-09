@@ -76,9 +76,7 @@ export default function ProductTabs({ product }: ProductTabsProps) {
     { 
       id: 'size', 
       label: 'Tailles disponibles', 
-      value: Array.isArray(product.sizeProduct) 
-        ? product.sizeProduct.join(', ')
-        : 'Non disponible'
+      value: product.sizeProduct ? product.sizeProduct.map(size => size.name).join(', ') : 'Non disponible'
     },
     { id: 'weight', label: 'Poids', value: product.weightProduct },
     { id: 'composition', label: 'Composition', value: product.composition },
@@ -201,15 +199,15 @@ export default function ProductTabs({ product }: ProductTabsProps) {
             )}
 
             {activeTab === 'details' && (
-              <div className="overflow-x-auto p-4">
+              <div className="overflow-x-auto p-4 text-md">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
                   <tbody className="divide-y divide-gray-200 dark:divide-dark-600">
                     {productDetails.filter(detail => detail.value != null && detail.value !== '').map(detail => (
                       <tr key={detail.id} className="hover:bg-gray-50 dark:hover:bg-dark-600/50 transition-colors">
-                        <th scope="row" className="py-3.5 px-4 text-left text-sm font-semibold text-gray-800 dark:text-white w-1/3">
+                        <th scope="row" className="py-3.5 px-4 text-left font-semibold text-gray-800 dark:text-white w-1/3">
                           {detail.label}
                         </th>
-                        <td className="py-3.5 px-4 text-sm text-gray-600 dark:text-gray-300">
+                        <td className="py-3.5 px-4 text-gray-600 dark:text-gray-300">
                           {typeof detail.value === 'boolean' ? (detail.value ? 'Oui' : 'Non') : detail.value}
                         </td>
                       </tr>

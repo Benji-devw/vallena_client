@@ -184,7 +184,7 @@ export default function ProductPage() {
                 {product.imgCollection.map((img: string, index: number) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedImage(index)}
+                    onMouseEnter={() => setSelectedImage(index)}
                     className={`relative aspect-square overflow-hidden rounded-md ${
                       selectedImage === index ? 'ring-2 ring-primary-500' : ''
                     }`}
