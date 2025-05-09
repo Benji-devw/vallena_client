@@ -54,8 +54,10 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
 
   const averageRating = calculateAverageRating();
 
+  console.log(product);
+
   return (
-    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-2 h-full">
+    <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">
       <div
         className={`flex h-full ${viewMode === 'horizontal' ? 'flex-row gap-x-6 gap-y-8 min-h-[300px]' : 'flex-col'}`}
       >
@@ -121,16 +123,15 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     {[1, 2, 3, 4, 5].map(star => (
                       <Star
                         key={star}
-                        className={`h-4 w-4 ${
-                          star <= averageRating
-                            ? 'text-yellow-400 fill-yellow-400'
-                            : 'text-gray-200'
-                        }`}
+                        className={`h-4 w-4 ${star <= averageRating
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-gray-200'
+                          }`}
                       />
                     ))}
                   </div>
                   <span className="ml-3 text-xs font-medium text-gray-500">
-                    ({averageRating} avis)
+                    ({product.comments?.length || 0} avis)
                   </span>
                 </div>
               )}
@@ -165,9 +166,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   </h3>
                   <div className="mt-4 flex items-center gap-x-3">
                     {Array.isArray(product.sizeProduct) && product.sizeProduct.map((size: SizeProduct, index: number) => (
-                      <span key={index} className={`text-lg text-gray-500 border border-gray-300 rounded-md p-2 min-w-10 text-center ${
-                        size.quantity === 0 ? 'opacity-50  bg-gray-100' : 'bg-white'
-                      }`}>
+                      <span key={index} className={`text-lg text-gray-500 border border-gray-300 rounded-md p-2 min-w-10 text-center ${size.quantity === 0 ? 'opacity-50  bg-gray-100' : 'bg-white'
+                        }`}>
                         {size.name}
                         <span className="block text-xs text-gray-400 mt-1">({size.quantity})</span>
                       </span>

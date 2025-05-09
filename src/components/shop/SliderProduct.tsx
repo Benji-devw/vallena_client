@@ -6,6 +6,7 @@ import OriginalSlider, { Settings as SlickSettings } from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRef } from 'react';
 
 const Slider = OriginalSlider as unknown as React.ComponentType<SlickSettings>;
 
@@ -54,6 +55,10 @@ export default function SliderProduct({ products, title }: SliderProductProps) {
   if (!products || products.length === 0) {
     return null;
   }
+
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const DRAG_THRESHOLD_PX = 10;
 
   const settings: SlickSettings = {
     dots: true,
@@ -136,8 +141,29 @@ export default function SliderProduct({ products, title }: SliderProductProps) {
       <div className="mx-auto max-w-7xl px-0 md:px-4">
         <Slider {...settings}>
           {products.map(product => (
-            <div key={product._id} className="px-1.5 md:px-2 outline-none">
-              <ProductCard product={product} viewMode="grid" />
+            <div
+              key={product._id}
+              className="px-1.5 md:px-2 outline-none"
+              onMouseDown={(e) => {
+                if (e.button === 0) {
+                  isDraggingRef.current = false;
+                  dragStartXRef.current = e.clientX;
+                }
+              }}
+              onMouseMove={(e) => {
+                if (e.buttons === 1 && Math.abs(e.clientX - dragStartXRef.current) > DRAG_THRESHOLD_PX) {
+                  isDraggingRef.current = true;
+                }
+              }}
+            >
+              <div onClickCapture={(e) => {
+                if (isDraggingRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}>
+                <ProductCard product={product} viewMode="grid" />
+              </div>
             </div>
           ))}
         </Slider>

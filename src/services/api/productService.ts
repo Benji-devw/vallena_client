@@ -29,7 +29,7 @@ export interface Product {
   yearCollection?: number;
   visible?: boolean;
   notes?: number;
-  comments?: any[];
+  comments?: Array<string>;
   createdAt: string;
   updatedAt: string;
 }
