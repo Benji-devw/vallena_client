@@ -54,7 +54,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
 
   const averageRating = calculateAverageRating();
 
-  console.log(product);
+  // console.log(product);
 
   return (
     <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">

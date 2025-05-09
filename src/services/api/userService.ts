@@ -2,11 +2,14 @@ import { axiosInstance, API_URLS } from './axiosConfig';
 
 export interface User {
   _id: string;
+  username: string;
   email: string;
-  password: string;
+  password?: string;
   firstName: string;
   lastName: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'God' | 'superGod';
+  googleId?: string;
+  picture?: string;
   address?: {
     street: string;
     city: string;
@@ -21,13 +24,14 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterData extends Omit<User, '_id' | 'createdAt'> {
-  confirmPassword: string;
+export interface RegisterData extends Omit<User, '_id' | 'createdAt' | 'googleId' | 'picture' | 'role' | 'address'> {
+  password: string;
+  confirmPassword?: string;
 }
 
 export const userService = {
   // Inscription
-  register: async (userData: RegisterData) => {
+  register: async (userData: Omit<RegisterData, 'confirmPassword'>) => {
     const response = await axiosInstance.post(`${API_URLS.users}/register`, userData);
     return response.data;
   },

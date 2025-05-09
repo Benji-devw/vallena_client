@@ -10,6 +10,8 @@ const Dashboard = () => {
     return <p>Chargement de la session...</p>;
   }
 
+  console.log(session);
+
   return (
     <div>
       { 

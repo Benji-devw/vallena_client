@@ -3,16 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// import { useAuth } from '@/hooks/useAuth';
-// import { productService } from '@/services/api/productService';
-import Modal from '@/components/ui/Modal';
-// import LoginForm from '@/components/auth/LoginForm';
+import { useSession, signOut } from 'next-auth/react';
+// import Modal from '@/components/ui/Modal';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,35 +116,62 @@ export default function Header() {
               </Link>
 
               {/* Login/Profile */}
-              {/* {isAuthenticated ? ( */}
-                <div className="relative group">
-                  <Link href="/auth" className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                    <span className="hidden md:inline">M'identifier</span>
-                  </Link>
+              {status === "loading" ? (
+                <div className="h-8 w-8 bg-gray-200 dark:bg-dark-700 rounded-full animate-pulse"></div>
+              ) : session?.user ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
+                    className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    <img 
+                      src={session.user.image || '/images/default-avatar.svg'}
+                      alt={session.user.name || 'Avatar'} 
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  </button>
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-700 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                      <Link 
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        Mon Compte
+                      </Link>
+                      <button 
+                        onClick={() => {signOut({ callbackUrl: '/' }); setIsProfileDropdownOpen(false);}}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
+                      >
+                        Se déconnecter
+                      </button>
+                    </div>
+                  )}
                 </div>
+              ) : (
+                <Link href="/auth" className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <span className="hidden md:inline">S'identifier</span>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
       </header>
-
-      {/* Modal de connexion */}
-      {/* <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} title="Connexion" size="md">
-        <LoginForm />
-      </Modal> */}
     </>
   );
 }

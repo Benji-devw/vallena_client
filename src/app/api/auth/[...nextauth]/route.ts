@@ -55,13 +55,23 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          const user = await res.json(); // 'user' contient la réponse de votre API, ex: { id, email, name, token }
+          const apiResponse = await res.json(); // { token, user: { _id, email, firstName, lastName, ... } }
 
-          if (user && user.token) {
-            // NextAuth attend un objet utilisateur conforme. Votre API doit renvoyer id, email, name, et le token peut être attaché.
-            return user; // L'objet utilisateur complet, y compris le token, sera passé au callback jwt.
+          if (apiResponse && apiResponse.token && apiResponse.user) {
+            // Retourner un objet plat que NextAuth peut utiliser pour peupler le 'user' du callback jwt
+            return {
+              id: apiResponse.user._id,
+              email: apiResponse.user.email,
+              name: `${apiResponse.user.firstName} ${apiResponse.user.lastName}`,
+              firstName: apiResponse.user.firstName, // Garder pour potentiellement d'autres usages
+              lastName: apiResponse.user.lastName,
+              username: apiResponse.user.username,
+              picture: apiResponse.user.picture || null, // Si votre API renvoie 'picture'
+              role: apiResponse.user.role,
+              token: apiResponse.token, // Le token de votre API
+            };
           } else {
-            console.log("Utilisateur non trouvé ou token manquant après connexion par credentials");
+            console.log("Utilisateur non trouvé ou token/user manquant après connexion par credentials API");
             return null;
           }
         } catch (error) {
@@ -94,7 +104,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           });
 
           console.log("[NextAuth signIn callback - Google] Réponse brute du Backend - Statut:", res.status);
-          const responseText = await res.text(); // Lire le texte pour le log, même si ce n'est pas JSON
+          const responseText = await res.text(); 
           console.log("[NextAuth signIn callback - Google] Réponse brute du Backend - Texte:", responseText);
 
           if (!res.ok) {
@@ -102,7 +112,6 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             return false;
           }
           
-          // Tenter de parser en JSON seulement si res.ok et qu'on s'attend à du JSON
           let backendUser;
           try {
             backendUser = JSON.parse(responseText); 
@@ -112,9 +121,10 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           }
 
           if (backendUser && backendUser.token) {
-            console.log("[NextAuth signIn callback - Google] Succès! Token reçu du Backend pour:", backendUser.email);
+            console.log("[NextAuth signIn callback - Google] Succès! Token reçu du Backend pour:", backendUser.user?.email || user.email);
+            // Enrichir l'objet user original de NextAuth avec le token et l'ID de notre backend
             (user as any).token = backendUser.token; 
-            (user as any).id = backendUser.id || user.id;
+            (user as any).id = backendUser.user?._id || user.id; 
             return true;
           } else {
             console.log("[NextAuth signIn callback - Google] Token manquant ou utilisateur non valide du Backend. Réponse parsée:", backendUser);
@@ -125,30 +135,43 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           return false;
         }
       }
-      console.log("[NextAuth signIn callback] Fin pour provider (non-Google ou autre):", account?.provider);
+      console.log("[NextAuth signIn callback] Fin pour provider (non-Google ou autre):", account?.provider, "User object:", user);
       return true; 
     },
     async jwt({ token, user, account }) {
-      // `user` est l'objet retourné par `authorize` (pour credentials) ou enrichi dans `signIn` (pour Google).
-      if (user) { // Ce bloc est exécuté lors de la connexion initiale
-        token.accessToken = (user as any).token; // Token de notre API
-        token.id = (user as any).id || user.id; // ID de notre API
-        // Ajoutez d'autres propriétés de `user` au `token` si nécessaire
-        // token.name = user.name;
-        // token.email = user.email;
+      console.log("[NextAuth jwt callback] User object reçu:", user);
+      console.log("[NextAuth jwt callback] Account object reçu:", account);
+      if (user) { // user est l'objet retourné par authorize ou enrichi par signIn (pour Google)
+        token.id = user.id; // ID de notre API (soit de Google via signIn, soit de Credentials via authorize)
+        token.accessToken = (user as any).token; // Token de votre API
+        
+        // Pour les connexions par Credentials, user.name, user.email, user.picture sont déjà formatés par authorize.
+        // Pour Google, user.name, user.email, user.image (venant de Google) sont présents sur l'objet user de base.
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image || (user as any).picture; // user.image pour Google, user.picture pour Credentials
+
+        // Si vous avez d'autres champs personnalisés à mettre dans le token JWT de NextAuth
+        // token.role = (user as any).role;
+        // token.username = (user as any).username;
       }
+      console.log("[NextAuth jwt callback] Token retourné:", token);
       return token;
     },
     async session({ session, token }) {
-      // Le `token` ici est celui retourné par le callback `jwt`.
-      // Nous transférons les infos du `token` vers l'objet `session.user`.
-      if (token && session.user) {
-        (session.user as any).id = token.id as string;
-        (session.user as any).accessToken = token.accessToken as string;
-        // Assurez-vous que les types correspondent à ce que vous avez défini dans `next-auth.d.ts` si vous en utilisez un.
-        // session.user.name = token.name as string; 
-        // session.user.email = token.email as string;
+      console.log("[NextAuth session callback] Token reçu:", token);
+      if (session.user) {
+        session.user.id = (token.id as string | undefined) || '';         // ID de votre DB
+        session.user.accessToken = token.accessToken as string | undefined; // Token de votre API
+        session.user.name = (token.name as string | undefined) || '';
+        session.user.email = (token.email as string | undefined) || '';
+        session.user.image = token.picture as string | undefined; // Utilise token.picture qui a été unifié dans jwt
+        
+        // Si vous avez d'autres champs dans le token à passer à la session client
+        // (session.user as any).role = token.role;
+        // (session.user as any).username = token.username;
       }
+      console.log("[NextAuth session callback] Session retournée:", session);
       return session;
     },
   },
