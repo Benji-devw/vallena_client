@@ -3,17 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
-import { productService } from '@/services/api/productService';
+// import { useAuth } from '@/hooks/useAuth';
+// import { productService } from '@/services/api/productService';
 import Modal from '@/components/ui/Modal';
-import LoginForm from '@/components/auth/LoginForm';
+// import LoginForm from '@/components/auth/LoginForm';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const router = useRouter();
-  const { isAuthenticated, user, logout } = useAuth();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,9 +117,9 @@ export default function Header() {
               </Link>
 
               {/* Login/Profile */}
-              {isAuthenticated ? (
+              {/* {isAuthenticated ? ( */}
                 <div className="relative group">
-                  <button className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors">
+                  <Link href="/auth" className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6"
@@ -135,61 +134,18 @@ export default function Header() {
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                       />
                     </svg>
-                    <span className="hidden md:inline">{user?.firstName}</span>
-                  </button>
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-dark-800 ring-1 ring-black ring-opacity-5 hidden group-hover:block">
-                    <div className="py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700"
-                      >
-                        Mon profil
-                      </Link>
-                      <Link
-                        href="/orders"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700"
-                      >
-                        Mes commandes
-                      </Link>
-                      <button
-                        onClick={logout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700"
-                      >
-                        Déconnexion
-                      </button>
-                    </div>
-                  </div>
+                    <span className="hidden md:inline">M'identifier</span>
+                  </Link>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                    />
-                  </svg>
-                </button>
-              )}
             </nav>
           </div>
         </div>
       </header>
 
       {/* Modal de connexion */}
-      <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} title="Connexion" size="md">
+      {/* <Modal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} title="Connexion" size="md">
         <LoginForm />
-      </Modal>
+      </Modal> */}
     </>
   );
 }
