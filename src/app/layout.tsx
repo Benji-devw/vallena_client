@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${poppins.className} min-h-screen bg-gray-100 dark:bg-dark-900 text-dark-900 dark:text-white transition-colors duration-200`}
         >
           <Header />
-          <main className="max-w-10xl mx-auto px-4 py-2">{children}</main>
+          <main className="max-w-10xl mx-auto px-4">{children}</main>
           <ThemeToggle />
         </body>
       </html>

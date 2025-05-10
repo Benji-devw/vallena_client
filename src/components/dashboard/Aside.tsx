@@ -1,12 +1,17 @@
 'use client';
 
 import React from 'react';
-import { CiUser, CiShoppingCart, CiEdit } from "react-icons/ci";
+import { CiUser, CiShoppingCart, CiEdit } from 'react-icons/ci';
 
 interface AsideProps {
   isSidebarToggled: boolean;
   activeView: string;
   userRoles: string[];
+  items: {
+    label: string;
+    icon: React.ReactNode;
+    view: string;
+  }[];
   handleMenuClick: (view: string) => void;
   // Ajoutez d'autres props si nécessaire, par exemple pour les icônes si elles sont passées en props
 }
@@ -16,6 +21,7 @@ export const AsideDashboard: React.FC<AsideProps> = ({
   activeView,
   userRoles,
   handleMenuClick,
+  items,
 }) => {
   return (
     <div className="flex flex-col overflow-y-auto duration-300 ease-linear h-full">
@@ -23,46 +29,34 @@ export const AsideDashboard: React.FC<AsideProps> = ({
       {/* h-full pour prendre la hauteur restante */}
       <nav>
         <div>
-          <h3 className="mb-4 p-2 text-md leading-[20px] text-gray-400 uppercase dark:text-gray-500">
-            <span className={`menu-group-title ${isSidebarToggled ? 'lg:hidden' : ''}`}>
-              Menu
-            </span>
+          <h3 className="mb-4 mt-4 p-2 text-md leading-[20px] text-gray-400 uppercase dark:text-gray-500">
+            <span className={`menu-group-title ${isSidebarToggled ? 'lg:hidden' : ''}`}>Menu</span>
           </h3>
 
           <ul className="mb-6 flex flex-col gap-1.5">
-            <li>
-              <button
-                onClick={() => handleMenuClick('profile')}
-                className={`group relative flex w-full items-center gap-2.5 rounded-md font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ${activeView === 'profile' && 'bg-gray-100 dark:bg-gray-700'} ${isSidebarToggled ? 'justify-center px-2 py-4' : 'px-4 py-2'}`}
-              >
-                <CiUser className={`w-8 h-8 font-bold ${activeView === 'profile' ? 'text-primary-500 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`} />
-                <span className={`menu-item-text ${isSidebarToggled ? 'sm:hidden' : ''}`}>
-                  Mon Profil
-                </span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleMenuClick('orders')}
-                className={`group relative flex w-full items-center gap-2.5 rounded-md font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ${activeView === 'orders' && 'bg-gray-100 dark:bg-gray-700'} ${isSidebarToggled ? 'justify-center px-2 py-4' : 'px-4 py-2'}`}
-              >
-                <CiShoppingCart className={`w-8 h-8 ${activeView === 'orders' ? 'text-primary-500 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`} />
-                <span className={`menu-item-text ${isSidebarToggled ? 'lg:hidden' : ''}`}>
-                  Mes Commandes
-                </span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleMenuClick('edit')}
-                className={`group relative flex w-full items-center gap-2.5 rounded-md font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ${activeView === 'edit' && 'bg-gray-100 dark:bg-gray-700'} ${isSidebarToggled ? 'justify-center px-2 py-4' : 'px-4 py-2'}`}
-              >
-                <CiEdit className={`w-8 h-8 ${activeView === 'edit' ? 'text-primary-500 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`} />
-                <span className={`menu-item-text ${isSidebarToggled ? 'lg:hidden' : ''}`}>
-                  Modifier mes infos
-                </span>
-              </button>
-            </li>
+            {items.map(item => (
+              <li key={item.view}>
+                <button
+                  onClick={() => handleMenuClick(item.view)}
+                  className={`group relative flex w-full items-center gap-2.5 rounded-md font-medium text-gray-700 duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ${
+                    activeView === item.view ? 'bg-gray-100 dark:bg-gray-700' : ''
+                  } ${isSidebarToggled ? 'justify-center px-2 py-4' : 'px-4 py-2'}`}
+                >
+                  <span
+                    className={`w-8 h-8 ${
+                      activeView === item.view
+                        ? 'text-primary-500 dark:text-primary-400'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className={`menu-item-text ${isSidebarToggled ? 'lg:hidden' : ''}`}>
+                    {item.label}
+                  </span>
+                </button>
+              </li>
+            ))}
             {/* TODO: Ajouter des liens spécifiques aux rôles admin/god/superGod ici */}
           </ul>
         </div>

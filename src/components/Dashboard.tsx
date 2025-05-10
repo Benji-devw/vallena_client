@@ -5,8 +5,9 @@ import { useSession } from 'next-auth/react';
 import UserProfile from './dashboard/UserProfile';
 import UserOrders from './dashboard/UserOrders';
 import { AsideDashboard } from './dashboard/Aside';
+import { CiUser, CiShoppingCart, CiSettings } from 'react-icons/ci';
 // import EditUserForm from './dashboard/EditUserForm';
-// import { FaBars } from 'react-icons/fa'; 
+// import { FaBars } from 'react-icons/fa';
 
 const Dashboard = () => {
   const { data: session, status } = useSession();
@@ -15,6 +16,24 @@ const Dashboard = () => {
 
   const sidebarRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const asideItems = [
+    {
+      label: 'Profil',
+      icon: <CiUser className="w-8 h-8" />,
+      view: 'profile',
+    },
+    {
+      label: 'Commandes',
+      icon: <CiShoppingCart className="w-8 h-8" />,
+      view: 'orders',
+    },
+    {
+      label: 'Paramètres',
+      icon: <CiSettings className="w-8 h-8" />,
+      view: 'settings',
+    },
+  ];
 
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
@@ -25,14 +44,20 @@ const Dashboard = () => {
     return () => document.removeEventListener('keydown', keyHandler);
   }, [isSidebarToggled]);
 
-  if (status === "loading") {
-    return <div className="flex justify-center items-center h-screen"><p className="text-xl">Chargement de la session...</p></div>;
+  if (status === 'loading') {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl">Chargement de la session...</p>
+      </div>
+    );
   }
 
   if (!session || !session.user) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-red-500">Aucune session active ou utilisateur non défini. Vous n'êtes pas connecté.</p>
+        <p className="text-xl text-red-500">
+          Aucune session active ou utilisateur non défini. Vous n'êtes pas connecté.
+        </p>
       </div>
     );
   }
@@ -44,7 +69,7 @@ const Dashboard = () => {
     if (window.innerWidth < 1024) {
       setIsSidebarToggled(false);
     }
-  }
+  };
 
   const renderView = () => {
     switch (activeView) {
@@ -63,7 +88,7 @@ const Dashboard = () => {
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <aside
         ref={sidebarRef}
-        className={`sidebar fixed top-30 left-0 z-[220] flex h-[calc(100vh-120px)] w-[290px] rounded-lg flex-col border-r border-gray-200 bg-white px-4 transition-all duration-300 dark:border-gray-800 dark:bg-black lg:sticky lg:top-[104px] lg:z-40 lg:translate-x-0 ${isSidebarToggled ? "translate-x-0 lg:w-[90px]" : "-translate-x-full lg:w-[290px]"}`}
+        className={`sidebar fixed top-0 left-0 z-[220] flex h-[calc(100vh-120px)] w-[290px] rounded-lg flex-col border-r border-gray-200 bg-white px-4 transition-all duration-300 dark:border-gray-800 dark:bg-black lg:sticky lg:top-[114px] lg:z-40 lg:translate-x-0 ${isSidebarToggled ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full lg:w-[290px]'}`}
       >
         {/* SIDEBAR HEADER (Logo et bouton de fermeture mobile) */}
         {/* <div
@@ -90,7 +115,8 @@ const Dashboard = () => {
         </div> */}
 
         {/* Aside content */}
-        <AsideDashboard 
+        <AsideDashboard
+          items={asideItems}
           isSidebarToggled={isSidebarToggled}
           activeView={activeView}
           userRoles={userRoles as string[]} // Cast si certain que roles est string[]
@@ -109,17 +135,34 @@ const Dashboard = () => {
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
         <button
-            ref={triggerRef}
-            onClick={() => setIsSidebarToggled(!isSidebarToggled)}
-            className="mb-4 p-2 border rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-            aria-label="Toggle sidebar"
+          ref={triggerRef}
+          onClick={() => setIsSidebarToggled(!isSidebarToggled)}
+          className="mb-4 p-2 border rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
-           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            ></path>
+          </svg>
         </button>
         {renderView()}
         <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded shadow">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Données de Session (Debug)</h3>
-          <pre className="text-xs overflow-x-auto text-gray-700 dark:text-gray-300">{JSON.stringify(session, null, 2)}</pre>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Données de Session (Debug)
+          </h3>
+          <pre className="text-xs overflow-x-auto text-gray-700 dark:text-gray-300">
+            {JSON.stringify(session, null, 2)}
+          </pre>
         </div>
       </div>
     </div>
@@ -127,5 +170,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
