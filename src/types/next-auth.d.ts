@@ -10,8 +10,18 @@ declare module 'next-auth' {
     user?: {
       id?: string | null; // L'ID de ta base de données
       accessToken?: string | null; // Ton token d'API personnalisé
+      username?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      roles?: string[] | null; // Tableau de rôles
+      picture?: string | null;
+      phone?: string | null;
+      country?: string | null;
+      bio?: string | null;
     } & DefaultSession['user'];
     accessToken?: string | null; // Répété ici pour accès direct via session.accessToken si besoin
+    // @ts-ignore TODO: Vérifier si cette ligne est encore utile avec la structure user ci-dessus
+    roles?: string[] | null; 
   }
 
   /**
@@ -21,8 +31,14 @@ declare module 'next-auth' {
   interface User extends DefaultUser {
     id?: string; // L'ID de ta base de données
     accessToken?: string; // Peut être utile de l'avoir aussi sur l'objet User initial
-    // Ajoute d'autres champs personnalisés que tu récupères de ton API/authorize ici
-    // par exemple: firstName?: string; lastName?: string; username?: string; role?: string;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    roles?: string[]; // Tableau de rôles
+    picture?: string | null; // Assurons-nous que picture est bien là aussi
+    phone?: string | null;
+    country?: string | null;
+    bio?: string | null;
   }
 }
 
@@ -31,7 +47,13 @@ declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id?: string;
     accessToken?: string;
-    // Ajoute d'autres champs personnalisés que tu stockes dans le token JWT ici
-    // par exemple: role?: string; username?: string;
+    username?: string;
+    firstName?: string; 
+    lastName?: string; 
+    roles?: string[]; // Tableau de rôles
+    picture?: string | null; // Assurons-nous que picture est bien là aussi
+    phone?: string | null;
+    country?: string | null;
+    bio?: string | null;
   }
 } 

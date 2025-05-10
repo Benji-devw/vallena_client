@@ -131,10 +131,10 @@ export default function AuthPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-8 mb-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="flex border-b mb-6">
+      <div className="flex border-b mb-6 w-full">
         <button 
           onClick={() => setActiveTab('login')}
-          className={`py-2 px-4 font-medium text-sm focus:outline-none ${
+          className={`py-2 px-4 font-medium text-lg focus:outline-none w-full ${
             activeTab === 'login' 
             ? 'border-b-2 border-primary-600 text-primary-600' 
             : 'text-gray-500 hover:text-gray-700'
@@ -144,7 +144,7 @@ export default function AuthPage() {
         </button>
         <button 
           onClick={() => setActiveTab('register')}
-          className={`py-2 px-4 font-medium text-sm focus:outline-none ${
+          className={`py-2 px-4 font-medium text-lg focus:outline-none w-full ${
             activeTab === 'register' 
             ? 'border-b-2 border-primary-600 text-primary-600' 
             : 'text-gray-500 hover:text-gray-700'
@@ -159,7 +159,7 @@ export default function AuthPage() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+          className="w-full h-16 flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path

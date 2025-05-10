@@ -63,12 +63,12 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
               id: apiResponse.user._id,
               email: apiResponse.user.email,
               name: `${apiResponse.user.firstName} ${apiResponse.user.lastName}`,
-              firstName: apiResponse.user.firstName, // Garder pour potentiellement d'autres usages
+              firstName: apiResponse.user.firstName,
               lastName: apiResponse.user.lastName,
               username: apiResponse.user.username,
-              picture: apiResponse.user.picture || null, // Si votre API renvoie 'picture'
-              role: apiResponse.user.role,
-              token: apiResponse.token, // Le token de votre API
+              picture: apiResponse.user.picture || null,
+              roles: apiResponse.user.roles || ['user'],
+              token: apiResponse.token,
             };
           } else {
             console.log("Utilisateur non trouvé ou token/user manquant après connexion par credentials API");
@@ -91,7 +91,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             email: user.email,
             name: user.name,
             googleId: user.id,
-            picture: profile?.picture,
+            picture: user.image,
           };
           console.log("[NextAuth signIn callback - Google] Corps de la requête Backend:", JSON.stringify(body));
 
@@ -120,11 +120,15 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             return false;
           }
 
-          if (backendUser && backendUser.token) {
+          if (backendUser && backendUser.token && backendUser.user) {
             console.log("[NextAuth signIn callback - Google] Succès! Token reçu du Backend pour:", backendUser.user?.email || user.email);
             // Enrichir l'objet user original de NextAuth avec le token et l'ID de notre backend
             (user as any).token = backendUser.token; 
-            (user as any).id = backendUser.user?._id || user.id; 
+            (user as any).id = backendUser.user._id;
+            (user as any).username = backendUser.user.username;
+            (user as any).firstName = backendUser.user.firstName;
+            (user as any).lastName = backendUser.user.lastName;
+            (user as any).roles = backendUser.user.roles || ['user'];
             return true;
           } else {
             console.log("[NextAuth signIn callback - Google] Token manquant ou utilisateur non valide du Backend. Réponse parsée:", backendUser);
@@ -142,18 +146,17 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       console.log("[NextAuth jwt callback] User object reçu:", user);
       console.log("[NextAuth jwt callback] Account object reçu:", account);
       if (user) { // user est l'objet retourné par authorize ou enrichi par signIn (pour Google)
-        token.id = user.id; // ID de notre API (soit de Google via signIn, soit de Credentials via authorize)
-        token.accessToken = (user as any).token; // Token de votre API
-        
-        // Pour les connexions par Credentials, user.name, user.email, user.picture sont déjà formatés par authorize.
-        // Pour Google, user.name, user.email, user.image (venant de Google) sont présents sur l'objet user de base.
+        token.id = user.id; 
+        token.accessToken = (user as any).token; 
         token.name = user.name;
         token.email = user.email;
-        token.picture = user.image || (user as any).picture; // user.image pour Google, user.picture pour Credentials
+        token.picture = user.image || (user as any).picture; 
 
-        // Si vous avez d'autres champs personnalisés à mettre dans le token JWT de NextAuth
-        // token.role = (user as any).role;
-        // token.username = (user as any).username;
+        // Champs personnalisés
+        token.username = (user as any).username;
+        token.firstName = (user as any).firstName;
+        token.lastName = (user as any).lastName;
+        token.roles = (user as any).roles || ['user'];
       }
       console.log("[NextAuth jwt callback] Token retourné:", token);
       return token;
@@ -161,15 +164,21 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       console.log("[NextAuth session callback] Token reçu:", token);
       if (session.user) {
-        session.user.id = (token.id as string | undefined) || '';         // ID de votre DB
-        session.user.accessToken = token.accessToken as string | undefined; // Token de votre API
-        session.user.name = (token.name as string | undefined) || '';
-        session.user.email = (token.email as string | undefined) || '';
-        session.user.image = token.picture as string | undefined; // Utilise token.picture qui a été unifié dans jwt
+        session.user.id = token.id as string | undefined || '';
+        session.user.accessToken = token.accessToken as string | undefined;
+        session.user.name = token.name as string | undefined || '';
+        session.user.email = token.email as string | undefined || '';
+        session.user.image = token.picture as string | undefined; 
         
-        // Si vous avez d'autres champs dans le token à passer à la session client
-        // (session.user as any).role = token.role;
-        // (session.user as any).username = token.username;
+        // Champs personnalisés
+        // @ts-ignore
+        session.user.username = token.username as string | undefined;
+        // @ts-ignore
+        session.user.firstName = token.firstName as string | undefined;
+        // @ts-ignore
+        session.user.lastName = token.lastName as string | undefined;
+        // @ts-ignore
+        session.user.roles = token.roles as string[] | undefined || ['user'];
       }
       console.log("[NextAuth session callback] Session retournée:", session);
       return session;

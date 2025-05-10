@@ -114,7 +114,7 @@ export default function ShopPage() {
 
   return (
     <div
-      className="min-h-screen mx-auto bg-gray-50 dark:bg-dark-900"
+      className="min-h-screen mx-auto bg-gray-100 dark:bg-dark-900"
       data-testid="shop-page-container"
     >
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">

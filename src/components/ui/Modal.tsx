@@ -47,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -61,6 +61,7 @@ const Modal: React.FC<ModalProps> = ({
             relative w-full transform overflow-hidden rounded-lg bg-white dark:bg-gray-800
             shadow-xl transition-all ${sizeClasses[size]} ${className}
           `}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {(title || showCloseButton) && (
