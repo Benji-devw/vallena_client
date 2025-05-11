@@ -19,12 +19,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   // console.log(user);
 
   return (
-    <div className="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-gray-800 lg:p-6">
-      <div className="flex justify-between items-center">
+    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="flex justify-between items-center sm:flex-row flex-col">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90 lg:mb-7">Profile</h2>
         <button
           onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+          className="flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
         >
           <svg
             className="fill-current"
@@ -46,9 +46,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       </div>
 
       {/* Profile preview */}
-      <div className="p-5 mb-6lg:p-6">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
+      <div className="p-5 mb-6 lg:p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-center w-full gap-6 sm:flex-row">
             <div className="w-24 h-24 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
               <img
                 src={user.image || user.picture || '/images/default-avatar.svg'}
@@ -65,7 +65,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                 Pseudo: <b>{user.username || ''}</b>
               </p>
               {/* <p className="text-md text-gray-500 dark:text-gray-400">{user.id}</p> */}
-              <div className="flex flex-col items-center mt-2 gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
+              <div className="flex flex-col items-center mt-2 gap-1 text-left sm:flex-row sm:gap-3">
                 <p className="text-md text-gray-500 dark:text-gray-400">
                   Rôle:{' '}
                   <b>
@@ -74,7 +74,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                       : 'Non définie'}
                   </b>
                 </p>
-                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 sm:block"></div>
                 <p className="text-md text-gray-500 dark:text-gray-400">
                   ID: <b>{user.id}</b>
                 </p>

@@ -7,21 +7,27 @@ export const orderService = {
     return response.data;
   },
 
-  // Récupérer les commandes d'un utilisateur
+  // Get user orders
   getUserOrders: async (userId: string) => {
     const response = await axiosInstance.get(`${API_URLS.orders}/orders/user/${userId}`);
     return response.data;
   },
 
-  // Récupérer une commande par ID
+  // Get order by ID
   getOrderById: async (orderId: string) => {
     const response = await axiosInstance.get(`${API_URLS.orders}/orders/${orderId}`);
     return response.data;
   },
 
-  // Mettre à jour le statut d'une commande
+  // Update order status
   updateOrderStatus: async (orderId: string, status: Order['statut']) => {
     const response = await axiosInstance.patch(`${API_URLS.orders}/orders/${orderId}/status`, { status });
     return response.data;
-  }
-}; 
+  },
+
+  // Get total orders
+  getOrdersByUserId: async (userId: string) => {
+    const response = await axiosInstance.get(`${API_URLS.orders}/orders/user/${userId}`);
+    return response.data;
+  },
+};
