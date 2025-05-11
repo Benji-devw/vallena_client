@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { CiUser, CiShoppingCart, CiEdit } from 'react-icons/ci';
 
 interface AsideProps {
   isSidebarToggled: boolean;

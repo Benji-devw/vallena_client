@@ -95,7 +95,7 @@ export default function ProductTabs({ product }: ProductTabsProps) {
 
   return (
     <div className="w-full mt-8 py-2">
-      <div className="bg-gray-100 dark:bg-dark-800/60 py-10 md:py-12 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-dark-800/60 py-10 md:py-12 rounded-lg shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex justify-center space-x-4 mb-10" aria-label="Tabs">
             {tabs.map(tab => {

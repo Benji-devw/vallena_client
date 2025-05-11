@@ -1,18 +1,7 @@
 import axios from 'axios';
+import { Comment } from '@/types/commentTypes';
 
 const API_URL = 'http://localhost:8800/api';
-
-export interface Comment {
-  orderNumber: string;
-  idProduct: string;
-  by: string;
-  messageTitle: string;
-  message: string;
-  note: string;
-  dateBuy: string;
-  datePost: string;
-  status: boolean;
-}
 
 export const commentsService = {
   async getComments() {

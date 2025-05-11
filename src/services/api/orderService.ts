@@ -1,26 +1,7 @@
 import { axiosInstance, API_URLS } from './axiosConfig';
-
-export interface Order {
-  _id: string;
-  userId: string;
-  products: Array<{
-    productId: string;
-    quantity: number;
-    price: number;
-  }>;
-  totalAmount: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  shippingAddress: {
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  createdAt: string;
-}
+import { Order } from '@/types/orderTypes';
 
 export const orderService = {
-  // Créer une nouvelle commande
   createOrder: async (orderData: Omit<Order, '_id' | 'createdAt'>) => {
     const response = await axiosInstance.post(`${API_URLS.orders}/orders`, orderData);
     return response.data;
@@ -39,7 +20,7 @@ export const orderService = {
   },
 
   // Mettre à jour le statut d'une commande
-  updateOrderStatus: async (orderId: string, status: Order['status']) => {
+  updateOrderStatus: async (orderId: string, status: Order['statut']) => {
     const response = await axiosInstance.patch(`${API_URLS.orders}/orders/${orderId}/status`, { status });
     return response.data;
   }

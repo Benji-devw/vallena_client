@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import UserProfile from './dashboard/UserProfile';
-import UserOrders from './dashboard/UserOrders';
-import { AsideDashboard } from './dashboard/Aside';
+import UserProfile from '@/components/dashboard/userProfile/UserProfile';
+import UserOrders from '@/components/dashboard/userOrders/UserOrders';
+import { AsideDashboard } from '@/components/dashboard/Aside';
 import { CiUser, CiShoppingCart, CiSettings } from 'react-icons/ci';
+import { orderService } from '@/services/api/orderService';
 // import EditUserForm from './dashboard/EditUserForm';
 // import { FaBars } from 'react-icons/fa';
 
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const { data: session, status } = useSession();
   const [activeView, setActiveView] = useState('profile');
   const [isSidebarToggled, setIsSidebarToggled] = useState(false);
+  const [debug, setDebug] = useState([]);
 
   const sidebarRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -36,13 +38,28 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const orders = await orderService.getUserOrders(session?.user?.id || '');
+        // Récupérer les données depuis la réponse API
+        setDebug(orders.data || []);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        setDebug([]);
+      }
+    }
+    
+    if (session?.user?.id) {
+      fetchOrders();
+    }
+
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
       if (!isSidebarToggled || keyCode !== 27) return;
       setIsSidebarToggled(false);
     };
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
-  }, [isSidebarToggled]);
+  }, [isSidebarToggled, session]);
 
   if (status === 'loading') {
     return (
@@ -76,7 +93,7 @@ const Dashboard = () => {
       case 'profile':
         return <UserProfile user={session.user} />;
       case 'orders':
-        return <UserOrders />;
+        return <UserOrders user={session.user} />;
       // case 'edit':
       //   return <EditUserForm user={session.user} />;
       default:
@@ -84,6 +101,7 @@ const Dashboard = () => {
     }
   };
 
+  // console.log(debug);
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <aside
@@ -158,10 +176,18 @@ const Dashboard = () => {
         {renderView()}
         <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded shadow">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Données de Session (Debug)
+            User Session (Debug)
           </h3>
           <pre className="text-xs overflow-x-auto text-gray-700 dark:text-gray-300">
             {JSON.stringify(session, null, 2)}
+          </pre>
+        </div>
+        <div className="max-h-[300px] overflow-y-auto mt-8 p-4 bg-white dark:bg-gray-800 rounded shadow">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Orders User (Debug)
+          </h3>
+          <pre className="text-xs overflow-x-auto text-gray-700 dark:text-gray-300">
+            {JSON.stringify(debug, null, 2)}
           </pre>
         </div>
       </div>
