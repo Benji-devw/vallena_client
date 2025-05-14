@@ -2,12 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { SlidersHorizontal, ArrowUp, ArrowDown, Sparkles, PercentCircle, Grid, List } from 'lucide-react';
-import { Product } from '@/services/api/productService';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SortByProps {
-  // products: Product[]; // Supprimé
-  // onProductsSort: (sortedProducts: Product[]) => void; // Supprimé
   onViewModeChange?: (mode: 'grid' | 'horizontal') => void;
   viewMode?: 'grid' | 'horizontal';
 }
@@ -50,6 +47,14 @@ export default function SortBy({ onViewModeChange, viewMode }: SortByProps) {
           newOptions.novelty.active = true;
         }
         
+        return newOptions;
+      });
+    } else {
+      setSortOptions(prev => {
+        const newOptions = { ...prev };
+        Object.keys(newOptions).forEach(key => {
+          newOptions[key].active = false;
+        });
         return newOptions;
       });
     }

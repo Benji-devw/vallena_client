@@ -190,7 +190,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
           <button
             onClick={e => handleReset(e)}
             disabled={!hasActiveFilters}
-            className={` transition-colors ${
+            className={` transition-colors font-semibold ${
               hasActiveFilters
                 ? 'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300'
                 : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
@@ -231,7 +231,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold">Catégories</span>
+              <span className="font-medium">Catégories</span>
               {getSelectedCount('category') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('category')})</span>
               )}
@@ -285,7 +285,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold">Matière</span>
+              <span className="font-medium">Matière</span>
               {getSelectedCount('matter') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('matter')})</span>
               )}
@@ -339,7 +339,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
             tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold">Couleur</span>
+              <span className="font-medium">Couleur</span>
               {getSelectedCount('color') > 0 && (
                 <span className="text-sm text-gray-500">({getSelectedCount('color')})</span>
               )}
@@ -416,7 +416,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
         {/* Price Slider */}
         <div className="border-t overflow-hidden">
           <div className="flex items-center justify-between p-3">
-            <span className="font-semibold">Prix</span>
+            <span className="font-medium">Prix</span>
             {filters.minPrice === PRICE_SLIDER_MAX_VALUE ? (
               <span className="text-sm text-gray-500">{`${PRICE_SLIDER_MAX_VALUE}€ et plus`}</span>
             ) : filters.maxPrice && filters.maxPrice !== '0' ? (

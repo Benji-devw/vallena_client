@@ -20,7 +20,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
 
   const handleDeleteUser = () => {
     if (confirm('Voulez-vous vraiment supprimer ce compte ?')) {
-      userService.deleteUser(user?.id || '').then((result) => {
+      userService.deleteUser(user?.id || '').then(() => {
         signOut({ callbackUrl: '/' });
       });
     }

@@ -98,8 +98,6 @@ const Dashboard = () => {
         return <UserProfile user={session.user} />;
       case 'orders':
         return <UserOrders user={session.user} />;
-      // case 'edit':
-      //   return <EditUserForm user={session.user} />;
       default:
         return <UserProfile user={session.user} />;
     }

@@ -10,7 +10,7 @@ import {
 import { orderService } from '@/services/api/orderService';
 import { Order, OrderItem, UserProfileProps } from '@/types/orderTypes';
 import { productService } from '@/services/api/productService';
-import { Product } from '@/types/productTypes';
+import { ProductTypes } from '@/types/productTypes';
 import { getOrderColumns } from './OrderColumns';
 import OrderTable from './OrderTable';
 import Skeleton from '@/components/dashboard/userOrders/OrderSkeleton';
@@ -45,7 +45,7 @@ const getStatusClass = (status: string) => {
 };
 
 // Function to calculate the total of articles using the product details retrieved
-const calculateTotal = (items: OrderItem[], productDetails: { [key: string]: Product }) => {
+const calculateTotal = (items: OrderItem[], productDetails: { [key: string]: ProductTypes }) => {
   return items.reduce((total, item) => {
     const product = productDetails[item.product_id];
     if (product) {
@@ -66,7 +66,7 @@ const UserOrders = ({ user }: UserProfileProps) => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [productDetails, setProductDetails] = useState<{ [key: string]: Product }>({});
+  const [productDetails, setProductDetails] = useState<{ [key: string]: ProductTypes }>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const handleGetProducts = async (currentOrderItems: OrderItem[]) => {
@@ -103,7 +103,7 @@ const UserOrders = ({ user }: UserProfileProps) => {
       });
       const resolvedProductsArray = await Promise.all(productsPromises);
 
-      const newProductDetails: { [key: string]: Product } = {};
+      const newProductDetails: { [key: string]: ProductTypes } = {};
       resolvedProductsArray.forEach(product => {
         if (product && product._id) {
           newProductDetails[product._id] = product;
@@ -172,7 +172,7 @@ const UserOrders = ({ user }: UserProfileProps) => {
     }, 1000);
   }, [user]);
 
-  console.log(orders);
+  // console.log(orders);
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">

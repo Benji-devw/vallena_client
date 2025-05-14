@@ -31,23 +31,23 @@ export default function Header() {
   const itemsCategories = [
     {
       label: 'Nouveautés',
-      href: '/novelty',
+      href: '/shop?sort=nouveautes',
     },
     {
       label: 'Homme',
-      href: '/homme',
+      href: '/shop?category=homme',
     },
     {
       label: 'Femme',
-      href: '/femme',
+      href: '/shop?category=femme',
     },
     {
       label: 'Enfant',
-      href: '/enfant',
+      href: '/shop?category=enfant',
     },
     {
       label: 'Promotions',
-      href: '/promotions',
+      href: '/shop?sort=promotions',
     },
   ];
 
@@ -58,7 +58,7 @@ export default function Header() {
           <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 items-center">
             <div className="flex justify-end items-center h-10">
               {/* Navigation */}
-              <nav className="flex items-center text-sm">
+              <nav className="flex">
                 <div className="flex items-center space-x-4">
                   <Link
                     href="/help"
@@ -77,20 +77,9 @@ export default function Header() {
                 </div>
                 {/* Login/Profile */}
                 {status === 'loading' ? (
-                  <div className="h-8 w-8 bg-gray-200 dark:bg-dark-700 rounded-full animate-pulse"></div>
+                  <div className="h-10 w-10 bg-gray-200 dark:bg-dark-700 rounded-full animate-pulse"></div>
                 ) : session?.user ? (
-                  <div className="relative ml-4">
-                    <button
-                      onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                      onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
-                      className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                    >
-                      <img
-                        src={session.user.image || '/images/default-avatar.svg'}
-                        alt={session.user.name || 'Avatar'}
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    </button>
+                  <div className="relative ml-4 justify-center">
                     {isProfileDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-700 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
                         <Link
@@ -126,6 +115,7 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Header */}
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-800">
           <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -137,12 +127,14 @@ export default function Header() {
                 </Link>
               </div>
 
+              {/* Categories */}
               <nav className="hidden lg:flex flex-1 items-center justify-center">
                 {itemsCategories.map(item => (
                   <Link
                     key={item.label}
-                    href={item.href}
+                    // href={item.href}
                     className="px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+                    href={`${item.href.toLowerCase()}`}
                   >
                     {item.label}
                   </Link>
@@ -150,6 +142,7 @@ export default function Header() {
               </nav>
 
               <div className="flex items-center space-x-2 md:space-x-4">
+              {/* Search */}
                 <form onSubmit={handleSearch} className="relative hidden sm:block">
                   <input
                     type="text"
@@ -166,6 +159,7 @@ export default function Header() {
                     type="submit"
                     className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full 
                             hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+                    onClick={() => router.push(`/shop?search=${encodeURIComponent(searchQuery)}`)}
                   >
                     <CiSearch className="h-5 w-5" />
                   </button>
@@ -179,6 +173,7 @@ export default function Header() {
                   <CiSearch className="h-6 w-6" />
                 </button>
 
+                {/* Shop */}
                 <nav className="flex items-center space-x-1 md:space-x-2">
                   <Link
                     href="/shop"
@@ -186,6 +181,8 @@ export default function Header() {
                   >
                     <CiShop className="h-6 w-6" />
                   </Link>
+
+                  {/* Cart */}
                   <Link
                     href="/cart"
                     className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
@@ -195,14 +192,27 @@ export default function Header() {
                       0
                     </span>
                   </Link>
+
+                  {/* Profile */}
+                  <button
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
+                    className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    <img
+                      src={session?.user?.image || '/images/default-avatar.svg'}
+                      alt={session?.user?.name || 'Avatar'}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  </button>
                 </nav>
 
                 <div className="flex items-center lg:hidden">
                   <button
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     className="p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700 focus:outline-none"
                     aria-label="Ouvrir le menu"
                     aria-expanded={isMobileMenuOpen}
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   >
                     <span className="sr-only">Ouvrir le menu principal</span>
                     {isMobileMenuOpen ? (
@@ -216,15 +226,19 @@ export default function Header() {
             </div>
           </div>
 
+
           {isMobileMenuOpen && (
             <div className="lg:hidden bg-white dark:bg-dark-800 shadow-lg rounded-b-md">
               <ul className="flex flex-col items-start py-2 px-2 space-y-1">
                 {itemsCategories.map(item => (
                   <li key={item.label}>
                     <Link
-                      href={item.href}
+                      href={item.href.toLowerCase()}  
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-dark-700"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        router.push(item.href.toLowerCase());
+                      }}
                     >
                       {item.label}
                     </Link>
