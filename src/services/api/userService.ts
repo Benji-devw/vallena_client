@@ -25,6 +25,13 @@ export const userService = {
     return response.data;
   },
 
+  // Delete user
+  deleteUser: async (userId: string) => {
+    console.log("userId", userId);
+    const response = await axiosInstance.delete(`${API_URLS.users}/${userId}`);
+    return response.data;
+  },
+
   // Change password
   changePassword: async (userId: string, oldPassword: string, newPassword: string, token: string) => {
     const response = await axiosInstance.put(

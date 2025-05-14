@@ -177,7 +177,9 @@ const Dashboard = () => {
             ></path>
           </svg>
         </button>
-        {renderView()}
+
+        {renderView()}        
+        {/* User session debug */}
         <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded shadow">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             User Session (Debug)
@@ -186,6 +188,8 @@ const Dashboard = () => {
             {JSON.stringify(session, null, 2)}
           </pre>
         </div>
+
+        {/* Orders debug */}
         <div className="max-h-[300px] overflow-y-auto mt-8 p-4 bg-white dark:bg-gray-800 rounded shadow">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Orders User (Debug)

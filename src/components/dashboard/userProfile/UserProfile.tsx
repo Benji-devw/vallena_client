@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { User } from 'next-auth'; // Importer le type User de next-auth
 import Modal from '@/components/ui/Modal';
 import EditUserForm from './EditUserForm';
+import { userService } from '@/services/api/userService';
+import { signOut } from 'next-auth/react';
 
 interface UserProfileProps {
   user: User | undefined;
@@ -15,6 +17,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   if (!user) {
     return <p>Aucune information utilisateur disponible.</p>;
   }
+
+  const handleDeleteUser = () => {
+    if (confirm('Voulez-vous vraiment supprimer ce compte ?')) {
+      userService.deleteUser(user?.id || '').then((result) => {
+        signOut({ callbackUrl: '/' });
+      });
+    }
+  };
 
   // console.log(user);
 
@@ -124,6 +134,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
             <p className="text-md font-medium text-gray-800 dark:text-white/90">{user.bio}</p>
           </div>
         </div>
+      </div>
+
+      <div className="flex justify-end bg-white dark:bg-gray-800">
+        <button
+          onClick={() => {
+            handleDeleteUser();
+          }}
+          className="mt-8 p-4 bg-red-100 dark:bg-red-100 hover:bg-red-400 dark:hover:bg-red-200 rounded shadow"
+        >
+          Supprimer mon compte
+        </button>
       </div>
 
       {isProfileDropdownOpen && (
