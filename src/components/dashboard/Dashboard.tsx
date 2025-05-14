@@ -7,10 +7,12 @@ import UserOrders from '@/components/dashboard/userOrders/UserOrders';
 import { AsideDashboard } from '@/components/dashboard/Aside';
 import { CiUser, CiShoppingCart, CiSettings } from 'react-icons/ci';
 import { orderService } from '@/services/api/orderService';
+import { useRouter } from 'next/navigation';
 // import EditUserForm from './dashboard/EditUserForm';
 // import { FaBars } from 'react-icons/fa';
 
 const Dashboard = () => {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [activeView, setActiveView] = useState('profile');
   const [isSidebarToggled, setIsSidebarToggled] = useState(false);
@@ -18,6 +20,8 @@ const Dashboard = () => {
 
   const sidebarRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  if (status === 'unauthenticated') return router.push('/');
 
   const asideItems = [
     {

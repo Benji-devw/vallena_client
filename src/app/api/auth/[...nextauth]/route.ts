@@ -1,18 +1,19 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { API_URLS } from '@/services/api/axiosConfig';
 // import type { NextAuthConfig } from 'next-auth'; // Le type exact peut varier avec les versions beta
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error('Variables d\'environnement GOOGLE_CLIENT_ID ou GOOGLE_CLIENT_SECRET manquantes');
 }
 if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
-  // Auth.js v5 préfère AUTH_SECRET, mais vérifions les deux pour la transition.
+  // Auth.js v5 prefers AUTH_SECRET, but let's check both for transition.
   throw new Error('Variable d\'environnement NEXTAUTH_SECRET ou AUTH_SECRET manquante');
 }
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
-  // trustHost: true, // Décommentez si vous déployez sur des plateformes comme Vercel/Netlify
+  // trustHost: true, // Uncomment if deploying on platforms like Vercel/Netlify
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -38,7 +39,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         }
 
         try {
-          const res = await fetch('http://localhost:8805/user/login', {
+          const res = await fetch(API_URLS.users + '/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -56,9 +57,9 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           }
 
           const apiResponse = await res.json(); // { token, user: { _id, email, firstName, lastName, ... } }
-
+          console.log("API login response (Credentials):", apiResponse);
           if (apiResponse && apiResponse.token && apiResponse.user) {
-            // Retourner un objet plat que NextAuth peut utiliser pour peupler le 'user' du callback jwt
+            // Return a flat object that NextAuth can use to populate the 'user' in the jwt callback
             return {
               id: apiResponse.user._id,
               email: apiResponse.user.email,
@@ -82,20 +83,29 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       console.log("[NextAuth signIn callback] Début pour provider:", account?.provider);
       if (account?.provider === 'google') {
         console.log("[NextAuth signIn callback - Google] Tentative de connexion Backend pour:", user.email);
         try {
           const body = {
             email: user.email,
-            name: user.name,
             googleId: user.id,
             picture: user.image,
+            username: user.name,        // ou user.email.split('@')[0] si tu veux un username unique
+            firstName: user.name, // dépend du provider
+            lastName: user.name, // dépend du provider
+            phone: user.phone || "",
+            country: user.country || "",
+            bio: user.bio || "",
+            role: "user",
+            postalCode: "",
+            city: "",
+            address: "",
           };
           console.log("[NextAuth signIn callback - Google] Corps de la requête Backend:", JSON.stringify(body));
 
-          const res = await fetch('http://localhost:8805/user/google-login', {
+          const res = await fetch(API_URLS.users + '/google-login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -129,6 +139,11 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             (user as any).firstName = backendUser.user.firstName;
             (user as any).lastName = backendUser.user.lastName;
             (user as any).roles = backendUser.user.roles || ['user'];
+            (user as any).phone = backendUser.user.phone;
+            (user as any).postalCode = backendUser.user.postalCode;
+            (user as any).city = backendUser.user.city;
+            (user as any).address = backendUser.user.address;
+            (user as any).country = backendUser.user.country;
             return true;
           } else {
             console.log("[NextAuth signIn callback - Google] Token manquant ou utilisateur non valide du Backend. Réponse parsée:", backendUser);

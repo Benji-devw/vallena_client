@@ -1,17 +1,11 @@
-import { LoginCredentialsTypes, RegisterDataTypes, UserTypes } from '@/types/userTypes';
+import { UserTypes } from '@/types/userTypes';
 import { axiosInstance, API_URLS } from './axiosConfig';
-// import { User } from 'next-auth';
+import { User } from 'next-auth';
 
 export const userService = {
   // Register
-  register: async (userData: Omit<RegisterDataTypes, 'confirmPassword'>) => {
+  register: async (userData: Omit<User, 'confirmPassword'>) => {
     const response = await axiosInstance.post(`${API_URLS.users}/register`, userData);
-    return response.data;
-  },
-
-  // Login
-  login: async (credentials: LoginCredentialsTypes) => {
-    const response = await axiosInstance.post(`${API_URLS.users}/login`, credentials);
     return response.data;
   },
 

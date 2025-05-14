@@ -47,17 +47,16 @@ export default function AuthPage() {
   }, [sessionStatus, router, callbackUrl]);
 
   const handleCredentialsSignIn = async (e?: React.FormEvent) => {
-    console.log("loginEmail", loginEmail);
-    console.log("loginPassword", loginPassword);
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const result = await userService.login({
+      const result = await signIn('credentials', {
+        redirect: false,
         email: loginEmail,
         password: loginPassword,
+        callbackUrl,
       });
-      console.log("result", result);
       if (result?.error) {
         setError(result.error === 'CredentialsSignin' ? 'Email ou mot de passe incorrect' : 'Une erreur est survenue lors de la connexion');
       } else if (result?.ok) {
@@ -81,7 +80,7 @@ export default function AuthPage() {
     }
   };
 
-  const handleRegister = async (e?: React.FormEvent) => {
+  const handleCredentialsRegister = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setError('');
     
@@ -92,25 +91,34 @@ export default function AuthPage() {
     setLoading(true);
     try {
       const registrationData = {
+        email: registerEmail,
+        password: registerPassword,
         firstName: registerFirstName,
         lastName: registerLastName,
         username: registerUsername,
+        avatar: '',
+        bio: '',
+        role: 'user',
+        phone: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        country: '',
+      };
+      await userService.register(registrationData);
+
+      const signInResult = await signIn('credentials', {
+        redirect: false,
         email: registerEmail,
         password: registerPassword,
-      };
-      const data = await userService.register(registrationData);
-
-      alert(data.message || 'Inscription réussie! Veuillez vous connecter.');
-      setLoginEmail(registerEmail); 
-      setLoginPassword(''); 
-      setRegisterFirstName(''); 
-      setRegisterLastName('');
-      setRegisterUsername('');
-      setRegisterEmail('');
-      setRegisterPassword('');
-      setRegisterConfirmPassword('');
-      setActiveTab('login');
-      setError('');
+        callbackUrl,
+      });
+      
+      if (signInResult?.error) {
+        setError(signInResult.error === 'CredentialsSignin' ? 'Email ou mot de passe incorrect' : 'Une erreur est survenue lors de la connexion');
+      } else if (signInResult?.ok) {
+        router.push(callbackUrl);
+      }
 
     } catch (err: any) {
       console.error("Erreur lors de l'appel à userService.register:", err);
@@ -228,7 +236,7 @@ export default function AuthPage() {
 
       {/* Form Register */}
       {activeTab === 'register' && (
-        <form onSubmit={handleRegister} className="space-y-4 mt-6">
+        <form onSubmit={handleCredentialsRegister} className="space-y-4 mt-6">
           <h2 className="text-2xl font-bold mb-6 text-center">S'inscrire avec un email</h2>
           {error && (
             <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded-md">{error}</div>
