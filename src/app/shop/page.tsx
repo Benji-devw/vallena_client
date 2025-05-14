@@ -91,7 +91,7 @@ export default function ShopPage() {
     loadProducts();
   }, [searchParams, limit]);
 
-  // Nouveau useEffect pour mettre à jour le nom de la catégorie pour le fil d'Ariane
+  // useEffect to update the current category name for breadcrumbs
   useEffect(() => {
     const categoryId = searchParams.get('category');
     if (categoryId && allCategories.length > 0) {
@@ -112,7 +112,6 @@ export default function ShopPage() {
   };
 
   // console.log("🔍 comments", comments);
-
   return (
     <div
       className="min-h-screen mx-auto bg-gray-100 dark:bg-dark-900"

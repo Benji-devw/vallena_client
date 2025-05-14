@@ -174,13 +174,13 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     };
   }, [filters, router, searchParams]);
 
-  // Effet for loading the products
+  // Effect for loading the products
   useEffect(() => {
     onFilterChange(true);
   }, [filters, onFilterChange]);
 
   return (
-    <div className="max-h-[calc(100vh-10rem)] sticky top-20 p-4" data-testid="filters-container">
+    <div className="max-h-[calc(100vh-6rem)] sticky top-28 p-4" data-testid="filters-container">
       {/* Filters Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold" data-testid="filters-title">

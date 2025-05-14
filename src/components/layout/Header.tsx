@@ -11,6 +11,7 @@ import {
   CiSearch,
   CiMenuBurger,
   CiCircleRemove,
+  CiLogin,
 } from 'react-icons/ci';
 // import Modal from '@/components/ui/Modal';
 
@@ -75,41 +76,6 @@ export default function Header() {
                   </Link>
                   <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 </div>
-                {/* Login/Profile */}
-                {status === 'loading' ? (
-                  <div className="h-10 w-10 bg-gray-200 dark:bg-dark-700 rounded-full animate-pulse"></div>
-                ) : session?.user ? (
-                  <div className="relative ml-4 justify-center">
-                    {isProfileDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-700 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                        <Link
-                          href="/dashboard"
-                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          Mon Compte
-                        </Link>
-                        <button
-                          onClick={() => {
-                            signOut({ callbackUrl: '/' });
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
-                        >
-                          Se déconnecter
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href="/auth"
-                    className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
-                  >
-                    <CiUser className="h-6 w-6" />
-                    <span className="hidden md:inline">S'identifier</span>
-                  </Link>
-                )}
               </nav>
             </div>
           </div>
@@ -142,7 +108,7 @@ export default function Header() {
               </nav>
 
               <div className="flex items-center space-x-2 md:space-x-4">
-              {/* Search */}
+                {/* Search */}
                 <form onSubmit={handleSearch} className="relative hidden sm:block">
                   <input
                     type="text"
@@ -179,7 +145,7 @@ export default function Header() {
                     href="/shop"
                     className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
                   >
-                    <CiShop className="h-6 w-6" />
+                    <CiShop className="h-8 w-8" />
                   </Link>
 
                   {/* Cart */}
@@ -187,29 +153,68 @@ export default function Header() {
                     href="/cart"
                     className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
                   >
-                    <CiShoppingCart className="h-6 w-6" />
+                    <CiShoppingCart className="h-8 w-8" />
                     <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       0
                     </span>
                   </Link>
 
-                  {/* Profile */}
-                  <button
-                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                    onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
-                    className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                  >
-                    <img
-                      src={session?.user?.image || '/images/default-avatar.svg'}
-                      alt={session?.user?.name || 'Avatar'}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  </button>
+                  {/* Profile/Login Dropdown */}
+                  <div className="relative flex items-center justify-center min-w-[48px] min-h-[48px]">
+                    {status === 'loading' ? (
+                      <div className="h-10 w-10 bg-gray-200 dark:bg-dark-700 rounded-full animate-pulse" />
+                    ) : status === 'authenticated' ? (
+                      <>
+                        <button
+                          type="button"
+                          aria-label="Ouvrir le menu profil"
+                          onClick={() => setIsProfileDropdownOpen(open => !open)}
+                          onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
+                          className="p-0 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        >
+                          <img
+                            src={session?.user?.image || '/images/default-avatar.svg'}
+                            alt={session?.user?.name || 'Avatar'}
+                            className="h-10 w-10 rounded-full object-cover border border-gray-300 dark:border-dark-600"
+                          />
+                        </button>
+                        {isProfileDropdownOpen && (
+                          <div className="absolute top-14 right-0 mt-2 w-48 bg-white dark:bg-dark-700 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                            <Link
+                              href="/dashboard"
+                              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
+                              onClick={() => setIsProfileDropdownOpen(false)}
+                            >
+                              Mon Compte
+                            </Link>
+                            <button
+                              onClick={() => {
+                                setIsProfileDropdownOpen(false);
+                                signOut({ callbackUrl: '/' });
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-600"
+                            >
+                              Se déconnecter
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label="Connexion"
+                        onClick={() => router.push('/auth')}
+                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+                      >
+                        <CiUser className="h-8 w-8" />
+                      </button>
+                    )}
+                  </div>
                 </nav>
 
                 <div className="flex items-center lg:hidden">
                   <button
-                    className="p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700 focus:outline-none"
+                    className="m-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-700 focus:outline-none"
                     aria-label="Ouvrir le menu"
                     aria-expanded={isMobileMenuOpen}
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -226,14 +231,13 @@ export default function Header() {
             </div>
           </div>
 
-
           {isMobileMenuOpen && (
             <div className="lg:hidden bg-white dark:bg-dark-800 shadow-lg rounded-b-md">
               <ul className="flex flex-col items-start py-2 px-2 space-y-1">
                 {itemsCategories.map(item => (
                   <li key={item.label}>
                     <Link
-                      href={item.href.toLowerCase()}  
+                      href={item.href.toLowerCase()}
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-dark-700"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
