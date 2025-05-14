@@ -3,24 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
+import { CategoryTypes, MatterTypes, ColorTypes } from '@/types/productTypes';
 
 interface FiltersProps {
   onFilterChange: (isLoading: boolean) => void;
-  categories: {
-    id: string;
-    name: string;
-  }[];
-  matters: {
-    id: string;
-    name: string;
-  }[];
-  colors: {
-    id: string;
-    name: string;
-  }[];
+  categories: CategoryTypes[];
+  matters: MatterTypes[];
+  colors: ColorTypes[];
 }
 
-interface FilterState {
+export interface FilterState {
   category: string;
   matter: string;
   color: string;
@@ -36,7 +28,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     matter: false,
     color: false,
   });
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     minPrice: searchParams.get('minPrice') || '',
@@ -60,7 +52,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
   // check if there are active filters
   const hasActiveFilters = filters.category || filters.maxPrice || filters.matter || filters.color;
 
-  const handleFilterChange = (filterType: keyof FilterState, value: string) => {
+  const handleFilterChange = (filterType: keyof typeof filters, value: string) => {
     setFilters(prev => {
       const newFilters = { ...prev };
       // Si on clique sur la même valeur, on la désélectionne
@@ -114,7 +106,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
     }));
   };
 
-  const handleOptionSelect = (filterType: keyof FilterState, value: string) => {
+  const handleOptionSelect = (filterType: keyof typeof filters, value: string) => {
     handleFilterChange(filterType, value);
     // setOpenDropdown(null);
   };
@@ -274,9 +266,7 @@ export default function Filters({ onFilterChange, categories, matters, colors }:
                     }`}
                   >
                     <span>{category.name}</span>
-                    {filters.category === category.id && (
-                      <Check className="h-4 w-4 text-primary-500" />
-                    )}
+                    {filters.category === category.id && <Check className="h-4 w-4 text-primary-500" />}
                   </button>
                 ))}
               </div>

@@ -37,7 +37,6 @@ export interface UserProfileProps {
   user: User | undefined;
 }
 
-// Type pour les commandes basé sur l'exemple fourni
 export interface OrderItem {
   product_id: string;
   quantity: number;
@@ -57,5 +56,4 @@ export interface Payer {
   address: {
     country_code: string;
   };
-  [key: string]: any; // Pour permettre des propriétés supplémentaires
 }

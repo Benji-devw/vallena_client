@@ -1,20 +1,21 @@
-import { LoginCredentials, RegisterData, User } from '@/types/userTypes';
+import { LoginCredentialsTypes, RegisterDataTypes, UserTypes } from '@/types/userTypes';
 import { axiosInstance, API_URLS } from './axiosConfig';
+// import { User } from 'next-auth';
 
 export const userService = {
-  // Inscription
-  register: async (userData: Omit<RegisterData, 'confirmPassword'>) => {
+  // Register
+  register: async (userData: Omit<RegisterDataTypes, 'confirmPassword'>) => {
     const response = await axiosInstance.post(`${API_URLS.users}/register`, userData);
     return response.data;
   },
 
-  // Connexion
-  login: async (credentials: LoginCredentials) => {
+  // Login
+  login: async (credentials: LoginCredentialsTypes) => {
     const response = await axiosInstance.post(`${API_URLS.users}/login`, credentials);
     return response.data;
   },
 
-  // Récupérer le profil utilisateur
+  // Get profile
   getProfile: async (token: string) => {
     const response = await axiosInstance.get(`${API_URLS.users}/profile`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -22,15 +23,15 @@ export const userService = {
     return response.data;
   },
 
-  // Mettre à jour le profil
-  updateProfile: async (userId: string, userData: Partial<User>, token: string) => {
+  // Update profile
+  updateProfile: async (userId: string, userData: Partial<UserTypes>, token: string) => {
     const response = await axiosInstance.put(`${API_URLS.users}/${userId}`, userData, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
   },
 
-  // Changer le mot de passe
+  // Change password
   changePassword: async (userId: string, oldPassword: string, newPassword: string, token: string) => {
     const response = await axiosInstance.put(
       `${API_URLS.users}/${userId}/password`,

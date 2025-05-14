@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URLS = {
   products: process.env.NEXT_PUBLIC_PRODUCTS_API_URL || 'http://localhost:8800/api',
   orders: process.env.NEXT_PUBLIC_ORDERS_API_URL || 'http://localhost:8810/api',
-  users: process.env.NEXT_PUBLIC_USERS_API_URL || 'http://localhost:8805/user'
+  users: process.env.NEXT_PUBLIC_USERS_API_URL || 'http://localhost:8805/api'
 };
 
 const axiosInstance = axios.create({

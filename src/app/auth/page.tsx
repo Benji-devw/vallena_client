@@ -40,17 +40,24 @@ export default function AuthPage() {
     }
   }, [initialError, error]);
 
+  useEffect(() => {
+    if (sessionStatus === 'authenticated') {
+      router.push(callbackUrl);
+    }
+  }, [sessionStatus, router, callbackUrl]);
+
   const handleCredentialsSignIn = async (e?: React.FormEvent) => {
+    console.log("loginEmail", loginEmail);
+    console.log("loginPassword", loginPassword);
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const result = await signIn('credentials', {
+      const result = await userService.login({
         email: loginEmail,
         password: loginPassword,
-        redirect: false,
-        callbackUrl,
       });
+      console.log("result", result);
       if (result?.error) {
         setError(result.error === 'CredentialsSignin' ? 'Email ou mot de passe incorrect' : 'Une erreur est survenue lors de la connexion');
       } else if (result?.ok) {
@@ -59,6 +66,17 @@ export default function AuthPage() {
     } catch (err) {
       setError('Une erreur est survenue pendant la tentative de connexion.');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await signIn('google', { callbackUrl });
+    } catch (err) {
+      setError('Erreur lors de la connexion avec Google.');
       setLoading(false);
     }
   };
@@ -107,23 +125,6 @@ export default function AuthPage() {
       setLoading(false);
     }
   };
-  
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      await signIn('google', { callbackUrl });
-    } catch (err) {
-      setError('Erreur lors de la connexion avec Google.');
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (sessionStatus === 'authenticated') {
-      router.push(callbackUrl);
-    }
-  }, [sessionStatus, router, callbackUrl]);
 
   if (sessionStatus === 'loading' || sessionStatus === 'authenticated') {
     return <p>Chargement...</p>;
@@ -180,6 +181,7 @@ export default function AuthPage() {
         </div>
       </div>
 
+      {/* Form Login */}
       {activeTab === 'login' && (
         <form onSubmit={handleCredentialsSignIn} className="space-y-4 mt-6">
           <h2 className="text-2xl font-bold mb-6 text-center">Se connecter avec un email.</h2>
@@ -224,6 +226,7 @@ export default function AuthPage() {
         </form>
       )}
 
+      {/* Form Register */}
       {activeTab === 'register' && (
         <form onSubmit={handleRegister} className="space-y-4 mt-6">
           <h2 className="text-2xl font-bold mb-6 text-center">S'inscrire avec un email</h2>

@@ -1,6 +1,6 @@
 // import { User as NextAuthUser } from 'next-auth';
 
-export interface User {
+export interface UserTypes {
   _id: string;
   username: string;
   email: string;
@@ -19,12 +19,12 @@ export interface User {
   createdAt: string;
 }
 
-export interface LoginCredentials {
+export interface LoginCredentialsTypes {
   email: string;
   password: string;
 }
 
-export interface RegisterData extends Omit<User, '_id' | 'createdAt' | 'googleId' | 'picture' | 'role' | 'address'> {
+export interface RegisterDataTypes extends Omit<UserTypes, '_id' | 'createdAt' | 'googleId' | 'picture' | 'role' | 'address'> {
   password: string;
   confirmPassword?: string;
 }

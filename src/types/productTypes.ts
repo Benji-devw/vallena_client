@@ -1,4 +1,4 @@
-export interface Product {
+export interface ProductTypes {
   _id: string;
   imgCollection: string[];
   titleProduct: string;
@@ -30,7 +30,7 @@ export interface Product {
   updatedAt: string;
 }
 
-export interface ProductFilters {
+export interface ProductFiltersTypes {
   category?: string;
   minPrice?: string;
   maxPrice?: string;
@@ -45,17 +45,17 @@ export interface ProductFilters {
   color?: string;
 }
 
-export interface Category {
+export interface CategoryTypes {
   id: string;
   name: string;
 }
 
-export interface Matter {
+export interface MatterTypes {
   id: string;
   name: string;
 }
 
-export interface Color {
+export interface ColorTypes {
   id: string;
   name: string;
 }

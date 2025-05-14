@@ -2,21 +2,22 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { productService, Product, ProductFilters } from '@/services/api/productService';
+import { productService } from '@/services/api/productService';
 import ProductCard from '@/components/shop/ProductCard';
 import Filters from '@/components/shop/Filters';
 import SortBy from '@/components/shop/SortBy';
 import ProductSkeleton from '@/components/shop/ProductSkeleton';
 import Breadcrumbs from '@/components/shop/Breadcrumbs';
+import { ProductTypes, CategoryTypes, MatterTypes, ColorTypes, ProductFiltersTypes } from '@/types/productTypes';
 // import Link from 'next/link';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<ProductTypes[]>([]);
   const [totalProducts, setTotalProducts] = useState<number>(0);
-  const [allCategories, setAllCategories] = useState<{ id: string; name: string }[]>([]);
-  const [allMatter, setAllMatter] = useState<{ id: string; name: string }[]>([]);
-  const [allColors, setAllColors] = useState<{ id: string; name: string }[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryTypes[]>([]);
+  const [allMatter, setAllMatter] = useState<MatterTypes[]>([]);
+  const [allColors, setAllColors] = useState<ColorTypes[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFilterChange, setIsFilterChange] = useState(false);
@@ -51,7 +52,7 @@ export default function ShopPage() {
         setLoading(true);
         const startTime = Date.now();
 
-        const filters: ProductFilters = {
+        const filters: ProductFiltersTypes = {
           category: searchParams.get('category') || undefined,
           matter: searchParams.get('matter') || undefined,
           color: searchParams.get('color') || undefined,

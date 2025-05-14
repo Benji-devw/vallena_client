@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { Product, productService } from '@/services/api/productService';
+import { productService } from '@/services/api/productService';
 import { Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
 import ProductTabs from '@/components/shop/ProductTabs';
 import ColorCircle from '@/components/ui/ColorCircle';
 import SliderProduct from '@/components/shop/SliderProduct';
+import { ProductTypes } from '@/types/productTypes';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -18,12 +19,15 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [similarProducts, setSimilarProducts] = useState<ProductTypes[]>([]);
 
-  // Obtenir le stock pour la taille sélectionnée
-  const selectedSizeStock = selectedSize && product && Array.isArray(product.sizeProduct)
-    ? product.sizeProduct.find((item: { name: string, quantity: number }) => item.name === selectedSize)?.quantity || 0
-    : Infinity; // Si aucune taille n'est sélectionnée ou si les données ne sont pas prêtes, on considère le stock comme infini pour l'instant
+  // Get the stock for the selected size
+  const selectedSizeStock =
+    selectedSize && product && Array.isArray(product.sizeProduct)
+      ? product.sizeProduct.find(
+          (item: { name: string; quantity: number }) => item.name === selectedSize
+        )?.quantity || 0
+      : Infinity; // If no size is selected or if the data is not ready, we consider the stock as infinite for now
 
   // Load product data
   useEffect(() => {
@@ -37,7 +41,11 @@ export default function ProductPage() {
           setSelectedColor(data.data.color[0]);
         }
         // Sélectionner la première taille disponible par défaut
-        if (data.data.sizeProduct && Array.isArray(data.data.sizeProduct) && data.data.sizeProduct.length > 0) {
+        if (
+          data.data.sizeProduct &&
+          Array.isArray(data.data.sizeProduct) &&
+          data.data.sizeProduct.length > 0
+        ) {
           const firstAvailableSize = data.data.sizeProduct[0]; // On prend la première de la liste
           if (firstAvailableSize && firstAvailableSize.name) {
             setSelectedSize(firstAvailableSize.name);
@@ -61,9 +69,11 @@ export default function ProductPage() {
       if (quantity < selectedSizeStock) {
         setQuantity(prev => prev + 1);
       } else {
-        // Optionnel : Alerter l'utilisateur que le stock max est atteint
+        // Alert the user that the maximum stock has been reached
         if (typeof window !== 'undefined') {
-          alert(`Stock maximum atteint pour la taille ${selectedSize} (${selectedSizeStock} articles).`);
+          alert(
+            `Stock maximum atteint pour la taille ${selectedSize} (${selectedSizeStock} articles).`
+          );
         }
       }
     } else if (type === 'decrement' && quantity > 1) {
@@ -80,13 +90,13 @@ export default function ProductPage() {
     setQuantity(1);
   };
 
-  // Fonction pour ajouter le produit au panier
+  // Function to add the product to the cart
   const handleAddToCart = () => {
     try {
-      // Récupérer le panier actuel (ou initialiser un tableau vide)
+      // Get the current cart (or initialize an empty array)
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-      // Ajouter le produit au panier
+      // Add the product to the cart
       const productToAdd = {
         productId: product._id,
         title: product.titleProduct,
@@ -96,29 +106,29 @@ export default function ProductPage() {
         image: product.imgCollection[0],
       };
 
-      // Vérifier si le produit existe déjà dans le panier
+      // Check if the product already exists in the cart
       const existingProductIndex = cart.findIndex(
         (item: any) => item.productId === product._id && item.color === selectedColor
       );
 
       if (existingProductIndex >= 0) {
-        // Mettre à jour la quantité si le produit existe déjà
+        // Update the quantity if the product already exists
         cart[existingProductIndex].quantity += quantity;
       } else {
-        // Ajouter le nouveau produit au panier
+        // Add the new product to the cart
         cart.push(productToAdd);
       }
 
-      // Sauvegarder le panier dans localStorage
+      // Save the cart in localStorage
       localStorage.setItem('cart', JSON.stringify(cart));
 
-      // Feedback à l'utilisateur (uniquement dans un environnement navigateur)
+      // Feedback to the user (only in a browser environment)
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
         window.alert('Produit ajouté au panier !');
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout au panier:", error);
-      // Uniquement dans un environnement navigateur
+      // Feedback to the user (only in a browser environment)
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
         window.alert("Une erreur est survenue lors de l'ajout au panier");
       }
@@ -262,14 +272,15 @@ export default function ProductPage() {
                       Couleurs disponibles
                     </dt>
                     <dd className="mt-2 flex flex-wrap gap-2">
-                      {Array.isArray(product.color) && product.color.map((color: string, index: number) => (
-                        <ColorCircle
-                          key={index}
-                          color={color}
-                          isSelected={selectedColor === color}
-                          onClick={() => handleColorChange(color)}
-                        />
-                      ))}
+                      {Array.isArray(product.color) &&
+                        product.color.map((color: string, index: number) => (
+                          <ColorCircle
+                            key={index}
+                            color={color}
+                            isSelected={selectedColor === color}
+                            onClick={() => handleColorChange(color)}
+                          />
+                        ))}
                     </dd>
                   </div>
                 )}
@@ -282,29 +293,37 @@ export default function ProductPage() {
                     </dt>
                     <dd className="mt-4 flex items-center gap-x-3">
                       {Array.isArray(product.sizeProduct) && product.sizeProduct.length > 0 ? (
-                        product.sizeProduct.map((sizeItem: { name: string, quantity: number }, index: number) => {
-                          const sizeName = sizeItem.name;
-                          const quantity = sizeItem.quantity;
-                          const isOutOfStock = quantity === 0;
-                          return (
-                            <span
-                              key={`${sizeName}-${index}`}
-                              onClick={() => !isOutOfStock && handleSizeChange(sizeName)}
-                              className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500 rounded-md p-2 min-w-10 text-center ${
-                                selectedSize === sizeName && !isOutOfStock ? 'border-primary-500 text-primary-500' : ''
-                              } ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white'}`}
-                              title={isOutOfStock ? 'Hors stock' : `Quantité : ${quantity}`}
-                            >
-                              {sizeName.toUpperCase()}
-                              {sizeItem.quantity === 0 && (
-                                <span className="block text-xs text-gray-400 mt-1">({sizeItem.quantity})</span>
-                              )}
-                              {!isOutOfStock && (
-                                <span className="block text-xs text-gray-400 mt-1">({quantity})</span>
-                              )}
-                            </span>
-                          );
-                        })
+                        product.sizeProduct.map(
+                          (sizeItem: { name: string; quantity: number }, index: number) => {
+                            const sizeName = sizeItem.name;
+                            const quantity = sizeItem.quantity;
+                            const isOutOfStock = quantity === 0;
+                            return (
+                              <span
+                                key={`${sizeName}-${index}`}
+                                onClick={() => !isOutOfStock && handleSizeChange(sizeName)}
+                                className={`text-lg text-gray-500 cursor-pointer border border-gray-300 hover:border-primary-500 rounded-md p-2 min-w-10 text-center ${
+                                  selectedSize === sizeName && !isOutOfStock
+                                    ? 'border-primary-500 text-primary-500'
+                                    : ''
+                                } ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white'}`}
+                                title={isOutOfStock ? 'Hors stock' : `Quantité : ${quantity}`}
+                              >
+                                {sizeName.toUpperCase()}
+                                {sizeItem.quantity === 0 && (
+                                  <span className="block text-xs text-gray-400 mt-1">
+                                    ({sizeItem.quantity})
+                                  </span>
+                                )}
+                                {!isOutOfStock && (
+                                  <span className="block text-xs text-gray-400 mt-1">
+                                    ({quantity})
+                                  </span>
+                                )}
+                              </span>
+                            );
+                          }
+                        )
                       ) : (
                         <span>Aucune taille disponible pour ce produit.</span>
                       )}

@@ -22,8 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="fr" suppressHydrationWarning>
         <head>
           {/* <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" /> */}
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" /> */}
         </head>
         <body
           className={`${poppins.className} min-h-screen bg-gray-100 dark:bg-dark-900 text-dark-900 dark:text-white transition-colors duration-200`}
