@@ -1,5 +1,6 @@
 
 export interface Comment {
+  _id?: string;
   orderNumber: string;
   idProduct: string;
   by: string;
