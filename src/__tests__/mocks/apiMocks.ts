@@ -1,9 +1,9 @@
-import { Product, Category, Matter, Color } from '@/services/api/productService';
+import { ProductTypes, CategoryTypes, MatterTypes, ColorTypes } from '@/types/productTypes';
 
 /**
  * Fonction utilitaire pour créer un mock de produit
  */
-export const createMockProduct = (id: string, title: string, price: number, options: Partial<Product> = {}): Product => {
+export const createMockProduct = (id: string, title: string, price: number, options: Partial<ProductTypes> = {}): ProductTypes => {
   return {
     _id: id,
     titleProduct: title,
@@ -124,7 +124,7 @@ export const mockFilters = {
 /**
  * Mocks pour les catégories
  */
-export const mockCategories: Category[] = [
+export const mockCategories: CategoryTypes[] = [
   { id: 'robes', name: 'Robes' },
   { id: 'chemises', name: 'Chemises' },
   { id: 'pantalons', name: 'Pantalons' },
@@ -134,7 +134,7 @@ export const mockCategories: Category[] = [
 /**
  * Mocks pour les matières
  */
-export const mockMatters: Matter[] = [
+export const mockMatters: MatterTypes[] = [
   { id: 'coton', name: 'Coton' },
   { id: 'soie', name: 'Soie' },
   { id: 'lin', name: 'Lin' },
@@ -144,7 +144,7 @@ export const mockMatters: Matter[] = [
 /**
  * Mocks pour les couleurs
  */
-export const mockColors: Color[] = [
+export const mockColors: ColorTypes[] = [
   { id: 'noir', name: 'Noir' },
   { id: 'blanc', name: 'Blanc' },
   { id: 'rouge', name: 'Rouge' },

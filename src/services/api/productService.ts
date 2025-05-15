@@ -1,11 +1,12 @@
-import { ProductFilters, Product, Category, Matter, Color } from '@/types/productTypes';
+import { ProductFiltersTypes, ProductTypes, CategoryTypes, MatterTypes, ColorTypes } from '@/types/productTypes';
 import axios from 'axios';
+import { mockProducts, mockProductCategories, mockProductColors, mockProductMatters } from '@/__tests__/mocks/productsMocks';
 
 const API_URL = 'http://localhost:8800/api';
 
 
 export const productService = {
-  async getAllProducts(filters: ProductFilters = {}) {
+  async getAllProducts(filters: ProductFiltersTypes = {}) {
     try {
       const params = new URLSearchParams();
       // console.log("filters", filters);
@@ -21,6 +22,14 @@ export const productService = {
       // Dont pass promotion and novelty because they are handled by SortBy component
       if (filters.page) params.append('page', filters.page.toString());
       if (filters.limit) params.append('limit', filters.limit.toString());
+
+      if (process.env.NEXT_PUBLIC_USE_MOCK === "dev") {
+        const response = mockProducts;
+        return {
+          products: response,
+          total: response.length
+        };
+      }
 
       const response = await axios.get(`${API_URL}/shop?${params.toString()}`);
       return {
@@ -43,9 +52,13 @@ export const productService = {
     }
   },
 
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<CategoryTypes[]> {
     // console.log('🔍 getCategories');
     try {
+      if (process.env.NEXT_PUBLIC_USE_MOCK === "dev") {
+        const response = mockProductCategories;
+        return response;
+      }
       const response = await axios.get(`${API_URL}/shop/categories`);
       return response.data;
     } catch (error) {
@@ -54,8 +67,12 @@ export const productService = {
     }
   },
 
-  async getMatters(): Promise<Matter[]> {
+  async getMatters(): Promise<MatterTypes[]> {
     try {
+      if (process.env.NEXT_PUBLIC_USE_MOCK === "dev") {
+        const response = mockProductMatters;
+        return response;
+      }
       const response = await axios.get(`${API_URL}/shop/matters`);
       return response.data;
     } catch (error) {
@@ -64,9 +81,14 @@ export const productService = {
     }
   },
 
-  async getColors(): Promise<Color[]> {
+  async getColors(): Promise<ColorTypes[]> {
     // console.log('🔍 getColors');
     try {
+      if (process.env.NEXT_PUBLIC_USE_MOCK === "dev") {
+        const response = mockProductColors;
+        return response;
+      }
+      
       const response = await axios.get(`${API_URL}/shop/colors`);
       return response.data;
     } catch (error) {
@@ -75,7 +97,7 @@ export const productService = {
     }
   },
 
-  async getSimilarProducts(productId: string, category?: string, limit: number = 6): Promise<Product[]> {
+  async getSimilarProducts(productId: string, category?: string, limit: number = 6): Promise<ProductTypes[]> {
     try {
       const params = new URLSearchParams();
       if (category) {
@@ -86,7 +108,7 @@ export const productService = {
 
       const response = await axios.get(`${API_URL}/shop?${params.toString()}`);
       // La structure de la réponse de l'API peut être { products: [] } ou directement []
-      let products: Product[] = response.data.products || response.data || [];
+      let products: ProductTypes[] = response.data.products || response.data || [];
       
       // Filtrer le produit actuel de la liste et limiter au nombre désiré
       products = products.filter(p => p._id !== productId).slice(0, limit);

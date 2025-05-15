@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/services/api/productService';
+import { ProductTypes } from '@/types/productTypes';
 import { Heart, ShoppingCart } from 'lucide-react';
 import ColorCircle from '@/components/ui/ColorCircle';
 import { Star } from 'lucide-react';
 import { commentsService } from '@/services/api/commentService';
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductTypes;
   viewMode?: 'grid' | 'horizontal';
   comments?: Comment[];
 }
@@ -32,29 +32,34 @@ interface SizeProduct {
 }
 
 export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
-  const [notes, setNotes] = useState<number[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     const loadComments = async () => {
       try {
         const response = await commentsService.getCommentsRating(product._id);
-        setNotes(response.data);
+        setComments(Array.isArray(response) ? response : []);
       } catch (error) {
         console.error('Erreur lors du chargement des notes:', error);
+        setComments([]);
       }
     };
     loadComments();
   }, [product._id]);
 
   const calculateAverageRating = () => {
-    if (notes.length === 0) return 0;
-    const sum = notes.reduce((acc, note) => acc + note, 0);
-    return Math.round(sum / notes.length);
+    if (!comments.length) return 0;
+    const sum = comments.reduce((acc, comment) => {
+      // Convert note string to number and handle potential NaN
+      const note = parseFloat(comment.note);
+      return acc + (isNaN(note) ? 0 : note);
+    }, 0);
+    return Math.round(sum / comments.length);
   };
 
   const averageRating = calculateAverageRating();
 
-  // console.log(product);
+  console.log(comments);
 
   return (
     <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">

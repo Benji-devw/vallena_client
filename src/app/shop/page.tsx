@@ -111,7 +111,7 @@ export default function ShopPage() {
     setLimit(prev => prev + 6);
   };
 
-  // console.log("🔍 comments", comments);
+  // console.log("🔍 filteredProducts", filteredProducts);
   return (
     <div
       className="min-h-screen mx-auto bg-gray-100 dark:bg-dark-900"
