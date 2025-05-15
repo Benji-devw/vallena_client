@@ -16,6 +16,18 @@ npm install
 npm install --save-dev @types/node
 ```
 
+
+## 📦 Env file
+
+```bash
+
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=http://localhost:3000
+```
+
+
 ## 📦 Scripts disponibles
 
 ```bash
