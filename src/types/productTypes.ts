@@ -17,7 +17,7 @@ export interface ProductTypes {
   matter?: string;
   composition?: string;
   fabrication?: string;
-  color?: string;
+  color?: Array<string>;
   entretien?: string;
   novelty?: boolean;
   oldPriceProduct?: number;

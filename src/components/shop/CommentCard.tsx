@@ -1,4 +1,4 @@
-import { Comment } from '@/services/api/commentService';
+import { Comment } from '@/types/commentTypes';
 
 interface CommentCardProps {
   comment: Comment;
@@ -27,7 +27,7 @@ export default function CommentCard({ comment }: CommentCardProps) {
             <svg
               key={index}
               className={`w-5 h-5 ${
-                index < parseInt(comment.note)
+                index < Number(comment.note)
                   ? 'text-yellow-400'
                   : 'text-gray-300 dark:text-gray-600'
               }`}

@@ -29,41 +29,6 @@ export default function ProductPage() {
         )?.quantity || 0
       : Infinity; // If no size is selected or if the data is not ready, we consider the stock as infinite for now
 
-  // Load product data
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        const data = await productService.getProductById(id as string);
-        setProduct(data.data);
-        // Sélectionner la première couleur par défaut
-        if (data.data.color && Array.isArray(data.data.color)) {
-          setSelectedColor(data.data.color[0]);
-        }
-        // Sélectionner la première taille disponible par défaut
-        if (
-          data.data.sizeProduct &&
-          Array.isArray(data.data.sizeProduct) &&
-          data.data.sizeProduct.length > 0
-        ) {
-          const firstAvailableSize = data.data.sizeProduct[0]; // On prend la première de la liste
-          if (firstAvailableSize && firstAvailableSize.name) {
-            setSelectedSize(firstAvailableSize.name);
-            setQuantity(1); // Réinitialiser la quantité à 1 lors de la sélection d'une nouvelle taille/produit
-          }
-        }
-        setError(null);
-      } catch (err) {
-        setError('Erreur lors du chargement du produit');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [id]);
-
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
       if (quantity < selectedSizeStock) {
@@ -135,6 +100,38 @@ export default function ProductPage() {
     }
   };
 
+  // Load products data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await productService.getProductById(id as string);
+        setProduct(data);
+        // Select first color by default
+        if (data.color && Array.isArray(data.color)) {
+          setSelectedColor(data.color[0]);
+        }
+        // Select first size by default
+        if (data.sizeProduct && Array.isArray(data.sizeProduct) && data.sizeProduct.length > 0) {
+          const firstAvailableSize = data.sizeProduct[0]; // Get the first size from the list
+          if (firstAvailableSize && firstAvailableSize.name) {
+            setSelectedSize(firstAvailableSize.name);
+            setQuantity(1); // Reset quantity to 1 when a new size/product is selected
+          }
+        }
+        setError(null);
+      } catch (err) {
+        setError('Erreur lors du chargement du produit');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  // Load similar products
   useEffect(() => {
     const fetchSimilarProducts = async () => {
       if (!product?._id || !product?.categoryProduct) {

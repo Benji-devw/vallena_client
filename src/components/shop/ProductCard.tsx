@@ -10,20 +10,6 @@ import { commentsService } from '@/services/api/commentService';
 interface ProductCardProps {
   product: ProductTypes;
   viewMode?: 'grid' | 'horizontal';
-  comments?: Comment[];
-}
-
-interface Comment {
-  _id: string;
-  orderNumber: string;
-  idProduct: string;
-  by: string;
-  messageTitle: string;
-  message: string;
-  note: string;
-  dateBuy: string;
-  datePost: string;
-  status: boolean;
 }
 
 interface SizeProduct {
@@ -32,34 +18,33 @@ interface SizeProduct {
 }
 
 export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [ratings, setRatings] = useState<number[]>([]);
 
+  // Load comments rating
   useEffect(() => {
-    const loadComments = async () => {
+    const loadRatings = async () => {
       try {
         const response = await commentsService.getCommentsRating(product._id);
-        setComments(Array.isArray(response) ? response : []);
+        setRatings(Array.isArray(response) ? response : []);
       } catch (error) {
         console.error('Erreur lors du chargement des notes:', error);
-        setComments([]);
+        setRatings([]);
       }
     };
-    loadComments();
+    loadRatings();
   }, [product._id]);
 
   const calculateAverageRating = () => {
-    if (!comments.length) return 0;
-    const sum = comments.reduce((acc, comment) => {
-      // Convert note string to number and handle potential NaN
-      const note = parseFloat(comment.note);
-      return acc + (isNaN(note) ? 0 : note);
+    if (!ratings.length) return 0; 
+    const sum = ratings.reduce((acc, rating) => { 
+      return acc + (typeof rating === 'number' && !isNaN(rating) ? rating : 0);
     }, 0);
-    return Math.round(sum / comments.length);
+    return Math.round(sum / ratings.length);
   };
 
   const averageRating = calculateAverageRating();
 
-  console.log(comments);
+  // console.log('🔍 averageRating', averageRating );
 
   return (
     <Link href={`/shop/product/${product._id}`} className="group block w-full overflow-hidden p-4 h-full">
@@ -136,7 +121,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     ))}
                   </div>
                   <span className="ml-3 text-xs font-medium text-gray-500">
-                    ({product.comments?.length || 0} avis)
+                    ({product.comments?.length} avis)
                   </span>
                 </div>
               )}

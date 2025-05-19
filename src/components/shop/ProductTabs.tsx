@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Product, productService } from '@/services/api/productService';
 import { FileText, Info, Star, ChevronDown } from 'lucide-react';
-import { commentsService, Comment } from '@/services/api/commentService';
+import { commentsService } from '@/services/api/commentService';
 import CommentCard from './CommentCard';
-
-interface SizeProduct {
-  name: string;
-  quantity: number;
-}
+import { ProductTypes } from '@/types/productTypes';
+import { Comment } from '@/types/commentTypes';
 
 interface ProductTabsProps {
-  product: Product;
+  product: ProductTypes;
 }
 
 export default function ProductTabs({ product }: ProductTabsProps) {
@@ -21,7 +17,7 @@ export default function ProductTabs({ product }: ProductTabsProps) {
   const [newComment, setNewComment] = useState({
     title: '',
     message: '',
-    rating: 5
+    rating: 0
   });
   const [openDropdowns, setOpenDropdowns] = useState({
     sizeFit: false,
@@ -42,12 +38,12 @@ export default function ProductTabs({ product }: ProductTabsProps) {
       if (!product?._id) return;
       try {
         const response = await commentsService.getCommentsByProduct(product._id);
-        setComments(response.data);
+        setComments(response);
         
         // Calculer la moyenne des notes
-        if (response.data.length > 0) {
-          const sum = response.data.reduce((acc: number, comment: Comment) => acc + Number(comment.note), 0);
-          setAverageRating(Math.round(sum / response.data.length));
+        if (response.length > 0) {
+          const sum = response.reduce((acc: number, comment: Comment) => acc + Number(comment.note), 0);
+          setAverageRating(Math.round(sum / response.length));
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des commentaires:', error);

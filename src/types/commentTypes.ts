@@ -6,7 +6,7 @@ export interface Comment {
   by: string;
   messageTitle: string;
   message: string;
-  note: string;
+  note: number;
   dateBuy: string;
   datePost: string;
   status: boolean;

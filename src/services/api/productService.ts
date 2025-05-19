@@ -44,8 +44,12 @@ export const productService = {
 
   async getProductById(id: string) {
     try {
+      if (process.env.NEXT_PUBLIC_USE_MOCK === "dev") {
+        const response = mockProducts.find((product: any) => product._id === id);
+        return response;
+      }
       const response = await axios.get(`${API_URL}/shop/${id}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la récupération du produit:', error);
       throw error;
